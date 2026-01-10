@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Send to Mealie",
+  "version": "0.1.0",
+  "description": "Adds a configurable 'Send to Mealie' button to recipe websites.",
+  "action": {
+    "default_title": "Send to Mealie",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://allrecipes.com/*", "https://foodnetwork.com/*", "https://food.com/*", "https://simplyrecipes.com/*", "https://seriouseats.com/*", "https://budgetbytes.com/*", "https://tasty.co/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://allrecipes.com/*", "https://foodnetwork.com/*", "https://food.com/*", "https://simplyrecipes.com/*", "https://seriouseats.com/*", "https://budgetbytes.com/*", "https://tasty.co/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https:;"
+  }
+}
