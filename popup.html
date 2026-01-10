@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <h3>📑 Add to Mealie</h3>
+  <h3>🍽️ Add to Mealie</h3>
   <label>Mealie URL</label>
   <input id="mealieUrl" type="text" placeholder="https://mealie.example.com">
   <label>API Key</label>
@@ -30,6 +30,12 @@
   </select>
   <div class="row">
     <button id="sendBtn">Send current tab</button>
+  </div>
+  <hr>
+  <label>Domain Whitelist (one per line)</label>
+  <textarea id="domainWhitelist" style="width: 320px; height: 120px; padding: 8px; font-family: monospace; font-size: 12px;"></textarea>
+  <div class="row">
+    <button id="resetWhitelistBtn">Reset to default</button>
   </div>
   <script src="popup.js"></script>
 </body>
