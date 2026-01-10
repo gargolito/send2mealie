@@ -41,7 +41,6 @@
     const domain = hostname.replace(/^www\./, '');
     chrome.storage.sync.get(['domainWhitelist'], (data) => {
       const whitelist = data.domainWhitelist || ["allrecipes.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
-      console.log('Domain:', domain, 'Match:', whitelist.some(w => domain.endsWith(w)));
       if (whitelist.some(w => domain.endsWith(w))) {
         if (document.body) {
           document.body.appendChild(btn);

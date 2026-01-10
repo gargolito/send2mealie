@@ -27,7 +27,6 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiKey) {
     await resp.json();
     chrome.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Recipe URL submitted." });
   } catch (e) {
-    console.error('createRecipeViaApi error:', e);
     chrome.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icon-128.png", message: `Failed: ${e.message}` });
   }
 }
@@ -51,7 +50,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await resp.json();
         sendResponse({ success: true });
       } catch (e) {
-        console.error('createViaApi error:', e);
         sendResponse({ success: false, error: e.message });
       }
     })();
