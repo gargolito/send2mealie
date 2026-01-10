@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>📑 Add to Mealie</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif; margin: 12px; color: #111; }
+    label { display:block; margin: 8px 0 4px; }
+    input[type="text"], input[type="password"] { width: 320px; padding: 8px; }
+    button { margin-top: 10px; }
+    .row { display:flex; gap:8px; align-items:center; }
+  </style>
+</head>
+<body>
+  <h3>📑 Add to Mealie</h3>
+  <label>Mealie URL</label>
+  <input id="mealieUrl" type="text" placeholder="https://mealie.example.com">
+  <label>API Key</label>
+  <input id="mealieApiKey" type="password" placeholder="••••••">
+  <div class="row">
+    <button id="testBtn">Test connection</button>
+    <button id="saveBtn">Save</button>
+  </div>
+  <hr>
+  <label>Default action</label>
+  <select id="defaultAction">
+    <option value="send">Send to Mealie</option>
+    <option value="config">Show config</option>
+  </select>
+  <div class="row">
+    <button id="sendBtn">Send current tab</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
