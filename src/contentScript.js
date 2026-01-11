@@ -80,18 +80,30 @@
     const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
 
     try {
-      const data = await chrome.storage.sync.get(['domainWhitelist']);
+      const data = await chrome.storage.sync.get(['domainWhitelist', 'mealieUrl', 'mealieApiKey']);
       const whitelist = data.domainWhitelist || DEFAULT_WHITELIST;
+
       if (whitelist.some(w => domain.endsWith(w))) {
-        if (document.body) {
-          document.body.appendChild(btn);
-          checkRecipeExists();
-        } else {
-          document.addEventListener('DOMContentLoaded', () => {
-            document.body.appendChild(btn);
-            checkRecipeExists();
-          });
+        if (!data.mealieUrl || !data.mealieApiKey) {
+          return;
         }
+
+        chrome.runtime.sendMessage(
+          { type: "isRecipePage", url: location.href },
+          (response) => {
+            if (response?.isRecipe) {
+              if (document.body) {
+                document.body.appendChild(btn);
+                checkRecipeExists();
+              } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                  document.body.appendChild(btn);
+                  checkRecipeExists();
+                });
+              }
+            }
+          }
+        );
       }
     } catch (e) {
       console.error('Send2Mealie: Error checking whitelist', e);

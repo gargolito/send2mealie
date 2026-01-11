@@ -1,3 +1,25 @@
+async function isRecipePage(url, mealieUrl, mealieApiKey) {
+  try {
+    const endpoint = new URL('/api/recipes/test-scrape-url', mealieUrl);
+
+    const resp = await fetch(endpoint.href, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${mealieApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url })
+    });
+
+    if (!resp.ok) return false;
+
+    const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
+    return contentLength > 1000;
+  } catch (e) {
+    return false;
+  }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   // no-op
 });
@@ -111,6 +133,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ exists: !!recipe });
       } catch (e) {
         sendResponse({ exists: false });
+      }
+    })();
+    return true;
+  }
+
+  if (msg?.type === "isRecipePage" && msg.url) {
+    (async () => {
+      const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
+      const { mealieUrl, mealieApiKey } = cfg;
+      if (!mealieUrl || !mealieApiKey) {
+        sendResponse({ isRecipe: false });
+        return;
+      }
+      try {
+        const isRecipe = await isRecipePage(msg.url, mealieUrl, mealieApiKey);
+        sendResponse({ isRecipe });
+      } catch (e) {
+        sendResponse({ isRecipe: false });
       }
     })();
     return true;
