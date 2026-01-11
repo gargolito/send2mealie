@@ -94,6 +94,5 @@ document.getElementById("domainWhitelist").addEventListener("input", updateSaveB
 
 document.getElementById("saveBtn").addEventListener("click", save);
 document.getElementById("testBtn").addEventListener("click", test);
-document.getElementById("sendBtn").addEventListener("click", sendCurrent);
 document.getElementById("resetWhitelistBtn").addEventListener("click", resetWhitelist);
 load();
