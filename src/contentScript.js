@@ -19,7 +19,8 @@
   btn.style.font = "14px/1.2 -apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,\"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", Arial, sans-serif";
 
   btn.addEventListener("click", async () => {
-    const { mealieUrl, mealieApiKey } = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
+    const data = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
+    const { mealieUrl, mealieApiKey } = data;
     if (!mealieUrl || !mealieApiKey) {
       chrome.runtime.sendMessage({ type: "openPopup" });
       return;
@@ -43,11 +44,14 @@
     });
   });
 
-  function shouldShowButton() {
+  async function shouldShowButton() {
     const hostname = new URL(location.href).hostname;
     const domain = hostname.replace(/^www\./, '');
-    chrome.storage.sync.get(['domainWhitelist'], (data) => {
-      const whitelist = data.domainWhitelist || CONFIG.DEFAULT_WHITELIST;
+    const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+
+    try {
+      const data = await chrome.storage.sync.get(['domainWhitelist']);
+      const whitelist = data.domainWhitelist || DEFAULT_WHITELIST;
       if (whitelist.some(w => domain.endsWith(w))) {
         if (document.body) {
           document.body.appendChild(btn);
@@ -55,8 +59,14 @@
           document.addEventListener('DOMContentLoaded', () => document.body.appendChild(btn));
         }
       }
-    });
+    } catch (e) {
+      console.error('Send2Mealie: Error checking whitelist', e);
+    }
   }
 
-  shouldShowButton();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', shouldShowButton);
+  } else {
+    shouldShowButton();
+  }
 })();

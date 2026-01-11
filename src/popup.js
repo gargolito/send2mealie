@@ -1,4 +1,4 @@
-const DEFAULT_WHITELIST = ["allrecipes.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
 let initialState = {};
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
