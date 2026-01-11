@@ -26,15 +26,18 @@
       return;
     }
     btn.textContent = "Sending...";
+    btn.style.background = "#9ACD32";
     btn.style.opacity = "0.7";
     btn.style.pointerEvents = "none";
     chrome.runtime.sendMessage({ type: "createViaApi", url: location.href }, (response) => {
       btn.style.opacity = "1";
       btn.style.pointerEvents = "auto";
       if (response?.success) {
+        btn.style.background = "#9ACD32";
         btn.textContent = "Sent!";
         setTimeout(() => (btn.textContent = "Send to Mealie"), 2000);
       } else if (response?.duplicate) {
+        btn.style.background = "#2620EE";
         btn.textContent = "Already saved ✓";
         setTimeout(() => (btn.textContent = "Send to Mealie"), 3000);
       } else {
