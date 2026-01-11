@@ -10,33 +10,31 @@
     input[type="text"], input[type="password"] { width: 320px; padding: 8px; }
     button { margin-top: 10px; }
     .row { display:flex; gap:8px; align-items:center; }
+    #saveBtn { width: 100%; margin-top: 20px; padding: 12px; font-size: 16px; font-weight: bold; }
+    #saveBtn.no-change { background: #E58325; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    #saveBtn.changed { background: #DC143C; color: white; border: none; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h3>🍽Send to Mealie</h3>
+  <h3>🍽️ Send to Mealie</h3>
   <label>Mealie URL</label>
   <input id="mealieUrl" type="text" placeholder="https://mealie.example.com">
   <label>API Key</label>
   <input id="mealieApiKey" type="password" placeholder="••••••">
   <div class="row">
     <button id="testBtn">Test connection</button>
-    <button id="saveBtn">Save</button>
   </div>
   <hr>
-  <label>Default action</label>
-  <select id="defaultAction">
-    <option value="send">Send to Mealie</option>
-    <option value="config">Show config</option>
-  </select>
-  <div class="row">
-    <button id="sendBtn">Send current tab</button>
-  </div>
+  <label>
+    <input type="checkbox" id="enableDuplicateCheck"> Check for duplicate recipes before sending
+  </label>
   <hr>
   <label>Domain Whitelist (one per line)</label>
   <textarea id="domainWhitelist" style="width: 320px; height: 120px; padding: 8px; font-family: monospace; font-size: 12px;"></textarea>
   <div class="row">
     <button id="resetWhitelistBtn">Reset to default</button>
   </div>
+  <button id="saveBtn" class="no-change">Save</button>
   <script src="popup.js"></script>
 </body>
 </html>
