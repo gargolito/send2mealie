@@ -33,11 +33,13 @@
       btn.style.opacity = "1";
       btn.style.pointerEvents = "auto";
       if (response?.success) {
-        btn.style.background = "#9ACD32";
-        btn.textContent = "Sent!";
-        setTimeout(() => (btn.textContent = "Send to Mealie"), 2000);
+        btn.style.background = "#E58325";
+        btn.textContent = "Mealied!";
+        btn.disabled = true;
+        btn.style.cursor = "default";
+        btn.style.pointerEvents = "none";
       } else if (response?.duplicate) {
-        btn.style.background = "#2620EE";
+        btn.style.background = "#2098eeff";
         btn.textContent = "Already saved ✓";
         setTimeout(() => (btn.textContent = "Send to Mealie"), 3000);
       } else {
@@ -46,6 +48,31 @@
       }
     });
   });
+
+  async function checkRecipeExists() {
+    try {
+      const data = await chrome.storage.sync.get(['mealieUrl', 'mealieApiKey', 'enableDuplicateCheck']);
+      if (!data.enableDuplicateCheck || !data.mealieUrl || !data.mealieApiKey) {
+        return;
+      }
+
+      chrome.runtime.sendMessage(
+        { type: "checkDuplicate", url: location.href },
+        (response) => {
+          if (response?.exists) {
+            btn.textContent = "Mealied!";
+            btn.style.background = "#E58325";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+            btn.style.cursor = "default";
+            btn.style.pointerEvents = "none";
+          }
+        }
+      );
+    } catch (e) {
+      console.error('Send2Mealie: Error checking recipe existence', e);
+    }
+  }
 
   async function shouldShowButton() {
     const hostname = new URL(location.href).hostname;
@@ -58,8 +85,12 @@
       if (whitelist.some(w => domain.endsWith(w))) {
         if (document.body) {
           document.body.appendChild(btn);
+          checkRecipeExists();
         } else {
-          document.addEventListener('DOMContentLoaded', () => document.body.appendChild(btn));
+          document.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(btn);
+            checkRecipeExists();
+          });
         }
       }
     } catch (e) {

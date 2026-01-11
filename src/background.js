@@ -97,4 +97,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (msg?.type === "checkDuplicate" && msg.url) {
+    (async () => {
+      const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
+      const { mealieUrl, mealieApiKey } = cfg;
+      if (!mealieUrl || !mealieApiKey) {
+        sendResponse({ exists: false });
+        return;
+      }
+      try {
+        const recipe = await checkDuplicate(msg.url, mealieUrl, mealieApiKey);
+        sendResponse({ exists: !!recipe });
+      } catch (e) {
+        sendResponse({ exists: false });
+      }
+    })();
+    return true;
+  }
 });

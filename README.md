@@ -4,16 +4,20 @@ Send2mealie
 ## Features
 
 - Adds a "Send to Mealie" button to whitelisted recipe sites.
-- Configurable white list, you can add or remove more recipe websites.
+- Configurable whitelist: add or remove recipe websites as needed.
+- Detects if a recipe is already in Mealie and displays "Mealied!" button state on page load.
+- Persistent button state after successful send—remains "Mealied!" without additional API calls.
+- Optional duplicate URL detection to prevent re-importing recipes.
+- Secure credential storage via Chrome's encrypted sync storage.
 
 ## Install
 - git clone github.com/gargolito/send2mealie
 - cd send2mealie
 - node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js
-- in you chrome based browser, go to settings/extensions
+- in your Chrome-based browser, go to settings/extensions
 - enable developer mode
 - click on **Load unpacked**
 - navigate to the build directory, click ok
-- configure with your Mealie url and api key generated from Mealie
+- configure with your Mealie URL and API key (generated from Mealie)
 
 TBD: [**Chrome** extension store]()
