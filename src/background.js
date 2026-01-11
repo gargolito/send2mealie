@@ -14,14 +14,34 @@ chrome.action.onClicked.addListener((tab) => {
 
 async function checkDuplicate(url, mealieUrl, mealieApiKey) {
   try {
-    const searchUrl = new URL('/api/recipes', mealieUrl).href;
-    const resp = await fetch(`${searchUrl}?search=${encodeURIComponent(url)}`, {
-      headers: { 'Authorization': `Bearer ${mealieApiKey}` }
+    const endpoint = new URL('/api/recipes', mealieUrl);
+
+    // We use orgURL with LIKE and exact quoting to prevent word-splitting.
+    // This forces a literal match against the original source URL.
+    const filter = `orgURL LIKE "${url}"`;
+
+    endpoint.search = new URLSearchParams({
+      page: 1,
+      perPage: 1,
+      queryFilter: filter
+    }).toString();
+
+    const resp = await fetch(endpoint.href, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${mealieApiKey}`,
+        'Accept': 'application/json'
+      }
     });
+
     if (!resp.ok) return null;
+
     const data = await resp.json();
+
+    // Return the first item if a literal match exists, otherwise null.
     return data?.items?.length > 0 ? data.items[0] : null;
   } catch (e) {
+    // Silent catch maintained as per your original implementation's flow.
     return null;
   }
 }
