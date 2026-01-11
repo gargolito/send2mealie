@@ -2,14 +2,20 @@ async function isRecipePage(url, mealieUrl, mealieApiKey) {
   try {
     const endpoint = new URL('/api/recipes/test-scrape-url', mealieUrl);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
     const resp = await fetch(endpoint.href, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${mealieApiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     if (!resp.ok) return false;
 
@@ -38,14 +44,10 @@ async function checkDuplicate(url, mealieUrl, mealieApiKey) {
   try {
     const endpoint = new URL('/api/recipes', mealieUrl);
 
-    // We use orgURL with LIKE and exact quoting to prevent word-splitting.
-    // This forces a literal match against the original source URL.
-    const filter = `orgURL LIKE "${url}"`;
-
     endpoint.search = new URLSearchParams({
       page: 1,
       perPage: 1,
-      queryFilter: filter
+      queryFilter: `orgURL = "${url}"`
     }).toString();
 
     const resp = await fetch(endpoint.href, {
@@ -60,10 +62,8 @@ async function checkDuplicate(url, mealieUrl, mealieApiKey) {
 
     const data = await resp.json();
 
-    // Return the first item if a literal match exists, otherwise null.
     return data?.items?.length > 0 ? data.items[0] : null;
   } catch (e) {
-    // Silent catch maintained as per your original implementation's flow.
     return null;
   }
 }
@@ -79,11 +79,11 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiKey) {
       },
       body: JSON.stringify({ url })
     });
-    if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+    if (!resp.ok) throw new Error('Failed to send recipe');
     await resp.json();
     chrome.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Recipe URL submitted." });
   } catch (e) {
-    chrome.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icon-128.png", message: `Failed: ${e.message}` });
+    chrome.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icon-128.png", message: "Failed to send recipe" });
   }
 }
 
@@ -114,7 +114,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await resp.json();
         sendResponse({ success: true });
       } catch (e) {
-        sendResponse({ success: false, error: e.message });
+        sendResponse({ success: false, error: "Failed to send recipe" });
       }
     })();
     return true;

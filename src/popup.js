@@ -3,7 +3,12 @@ let initialState = {};
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
-  try { new URL(url); return url.startsWith('https://'); } catch { return false; }
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && u.hostname.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 function hasChanges() {
@@ -71,8 +76,8 @@ async function test() {
   }
   try {
     const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiKey}` } });
-    alert(resp.ok ? "Connection OK" : `Failed: HTTP ${resp.status}`);
-  } catch (e) { alert(`Error: ${e.message}`); }
+    alert(resp.ok ? "Connection OK" : "Connection failed");
+  } catch (e) { alert("Connection error"); }
 }
 
 async function sendCurrent() {
