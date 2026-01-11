@@ -12,6 +12,20 @@ chrome.action.onClicked.addListener((tab) => {
   });
 });
 
+async function checkDuplicate(url, mealieUrl, mealieApiKey) {
+  try {
+    const searchUrl = new URL('/api/recipes', mealieUrl).href;
+    const resp = await fetch(`${searchUrl}?search=${encodeURIComponent(url)}`, {
+      headers: { 'Authorization': `Bearer ${mealieApiKey}` }
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data?.items?.length > 0 ? data.items[0] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function createRecipeViaApi(url, mealieUrl, mealieApiKey) {
   try {
     const fetchUrl = new URL('/api/recipes/create/url', mealieUrl).href;
@@ -34,9 +48,17 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiKey) {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "createViaApi" && msg.url) {
     (async () => {
-      const { mealieUrl, mealieApiKey } = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
+      const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey", "enableDuplicateCheck"]);
+      const { mealieUrl, mealieApiKey, enableDuplicateCheck } = cfg;
       if (!mealieUrl || !mealieApiKey) { chrome.action.openPopup(); sendResponse({ success: false }); return; }
       try {
+        if (enableDuplicateCheck) {
+          const existing = await checkDuplicate(msg.url, mealieUrl, mealieApiKey);
+          if (existing) {
+            sendResponse({ success: false, error: "Recipe already imported", duplicate: true, recipe: existing });
+            return;
+          }
+        }
         const fetchUrl = new URL('/api/recipes/create/url', mealieUrl).href;
         const resp = await fetch(fetchUrl, {
           method: 'POST',

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const BTN_ID = "add-to-mealie-button";
   if (document.getElementById(BTN_ID)) return;
 
@@ -25,10 +25,17 @@
       return;
     }
     btn.textContent = "Sending...";
+    btn.style.opacity = "0.7";
+    btn.style.pointerEvents = "none";
     chrome.runtime.sendMessage({ type: "createViaApi", url: location.href }, (response) => {
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
       if (response?.success) {
         btn.textContent = "Sent!";
         setTimeout(() => (btn.textContent = "Send to Mealie"), 2000);
+      } else if (response?.duplicate) {
+        btn.textContent = "Already saved ✓";
+        setTimeout(() => (btn.textContent = "Send to Mealie"), 3000);
       } else {
         btn.textContent = "Error";
         setTimeout(() => (btn.textContent = "Send to Mealie"), 2000);
@@ -40,7 +47,7 @@
     const hostname = new URL(location.href).hostname;
     const domain = hostname.replace(/^www\./, '');
     chrome.storage.sync.get(['domainWhitelist'], (data) => {
-      const whitelist = data.domainWhitelist || ["allrecipes.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+      const whitelist = data.domainWhitelist || CONFIG.DEFAULT_WHITELIST;
       if (whitelist.some(w => domain.endsWith(w))) {
         if (document.body) {
           document.body.appendChild(btn);
