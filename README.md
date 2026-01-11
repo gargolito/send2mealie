@@ -9,6 +9,7 @@ Send2mealie
 - Persistent button state after successful send—remains "Mealied!" without additional API calls.
 - Optional duplicate URL detection to prevent re-importing recipes.
 - Secure credential storage via Chrome's encrypted sync storage.
+- Security-hardened: redacted error messages, strict URL validation, minimal host permissions.
 
 ## Install
 - git clone github.com/gargolito/send2mealie
