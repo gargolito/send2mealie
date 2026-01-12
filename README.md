@@ -1,4 +1,4 @@
-<img src="public/icons/icon_128.png" width="128" align="center">
+# <img src="public/icons/icon_512.png" width="512" align="center">
 
 # Send2Mealie
 

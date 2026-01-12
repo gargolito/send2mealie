@@ -30,6 +30,27 @@ chrome.runtime.onInstalled.addListener(() => {
   // no-op
 });
 
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status !== 'complete') return;
+
+  try {
+    const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+    if (userSites.length === 0) return;
+
+    const tabUrl = new URL(tab.url);
+    const tabDomain = tabUrl.hostname.replace(/^www\./, '');
+
+    if (userSites.some(domain => tabDomain.endsWith(domain))) {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ['contentScript.js']
+      });
+    }
+  } catch (e) {
+    console.error('Error injecting content script:', e);
+  }
+});
+
 chrome.action.onClicked.addListener((tab) => {
   chrome.storage.sync.get(["mealieUrl", "mealieApiKey"], (cfg) => {
     if (!cfg.mealieUrl || !cfg.mealieApiKey) {

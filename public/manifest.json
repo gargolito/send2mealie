@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Send2Mealie",
-  "version": "1.1.0",
-  "description": "Adds a configurable 'Send to Mealie' button to recipe pages.",
+  "version": "1.2.0",
+  "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages.",
   "action": {
     "default_title": "Send to Mealie",
     "default_popup": "popup.html",
@@ -26,7 +26,17 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://*/"
+    "https://*.allrecipes.com/*",
+    "https://*.foodnetwork.com/*",
+    "https://*.eatingwell.com/*",
+    "https://*.food.com/*",
+    "https://*.simplyrecipes.com/*",
+    "https://*.seriouseats.com/*",
+    "https://*.budgetbytes.com/*",
+    "https://*.tasty.co/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*"
   ],
   "content_scripts": [
     {
@@ -47,3 +57,4 @@
     }
   ]
 }
+

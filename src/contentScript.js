@@ -77,13 +77,16 @@
   async function shouldShowButton() {
     const hostname = new URL(location.href).hostname;
     const domain = hostname.replace(/^www\./, '');
-    const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+    // const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+    const DEFAULT_WHITELIST = ["eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
 
     try {
-      const data = await chrome.storage.sync.get(['domainWhitelist', 'mealieUrl', 'mealieApiKey']);
+      const data = await chrome.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiKey']);
       const whitelist = data.domainWhitelist || DEFAULT_WHITELIST;
+      const userSites = data.userSites || [];
+      const allDomains = [...whitelist, ...userSites];
 
-      if (whitelist.some(w => domain.endsWith(w))) {
+      if (allDomains.some(w => domain.endsWith(w))) {
         if (!data.mealieUrl || !data.mealieApiKey) {
           return;
         }
