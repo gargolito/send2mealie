@@ -1,5 +1,6 @@
-# <img src="public/icons/icon_128.png" width="45" align="left">
-Send2mealie
+<img src="public/icons/icon_128.png" width="128" align="center">
+
+# Send2Mealie
 
 ## Features
 
