@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Generate manifest.json from whitelist
- * Keeps host_permissions and content_scripts matches in sync with the whitelist
+ * Generate manifest.json from whitelist and update popup.js
+ * Keeps host_permissions, content_scripts matches, and popup DEFAULT_WHITELIST in sync
  */
 
 const fs = require('fs');
@@ -24,7 +24,8 @@ const sites = arrayMatch[1]
   .split(',')
   .map(s => s.trim())
   .map(s => s.replace(/^"/, '').replace(/"$/, ''))
-  .filter(s => s.length > 0);
+  .filter(s => s.length > 0)
+  .sort(); // Sort alphabetically
 
 console.log(`Found ${sites.length} sites in whitelist:`, sites);
 
@@ -34,16 +35,29 @@ const hostPermissions = sites.map(site => `https://*.${site}/*`);
 // Generate content_scripts matches
 const contentScriptMatches = sites.map(site => `https://*.${site}/*`);
 
-// Read current manifest
+// Read and update manifest
 const manifestPath = path.join(__dirname, '../public/manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-
-// Update manifest
 manifest.host_permissions = hostPermissions;
 manifest.content_scripts[0].matches = contentScriptMatches;
-
-// Write updated manifest
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+console.log('✓ Updated manifest.json');
 
-console.log('✓ Updated manifest.json with whitelist sites');
+// Read and update popup.js
+const popupJsPath = path.join(__dirname, '../src/popup.js');
+let popupContent = fs.readFileSync(popupJsPath, 'utf-8');
+
+// Create the sorted whitelist as a string
+const whitelistString = JSON.stringify(sites);
+const newWhitelistLine = `const DEFAULT_WHITELIST = ${whitelistString};`;
+
+// Replace the DEFAULT_WHITELIST line in popup.js (skip commented lines)
+popupContent = popupContent.replace(
+  /^const DEFAULT_WHITELIST = \[.*?\];/m,
+  newWhitelistLine
+);
+
+fs.writeFileSync(popupJsPath, popupContent);
+console.log('✓ Updated popup.js with sorted whitelist');
+
 
