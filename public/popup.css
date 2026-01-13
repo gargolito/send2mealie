@@ -29,7 +29,18 @@ input[type="password"] {
 }
 
 button {
-  margin-top: 10px;
+  margin-top: 6px;
+  background: #E58325;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #d46f1a;
 }
 
 .row {
@@ -118,14 +129,14 @@ button {
 }
 
 .modal-header {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .modal-list {
   list-style: disc;
-  padding-left: 20px;
+  padding-left: 10px;
   margin: 0;
 }
 
@@ -139,9 +150,9 @@ button {
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 4px 6px;
   cursor: pointer;
-  margin-top: 12px;
+  margin-top: 6px;
   width: 100%;
 }
 
