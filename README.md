@@ -1,7 +1,6 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
 
-# Send2Mealie (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6)
-
+# Send2Mealie (1.5.6)
 **Send recipes from the web directly to your Mealie instance.**
 
 Send2Mealie is a Chrome extension that adds a “Send to Mealie” button to supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
