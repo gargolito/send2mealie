@@ -1,56 +1,44 @@
 # Privacy Policy – Send2Mealie
 
-Effective date: YYYY-MM-DD
+**Effective Date:** 2026-01-13
 
 ## Overview
 
-Send2Mealie is a Chrome extension that detects recipe pages on user-approved websites and allows users to send those recipes to their own Mealie server.
+Send2Mealie is a browser extension that allows users to send recipe URLs to their self-hosted Mealie instance. The extension is built with a "privacy-first" architecture: it does not scrape page content, does not track browsing history, and only operates on domains explicitly approved by the user.
 
-The extension is designed to minimize data access and does not collect personal information.
+## Data Collection and Transmission
 
-## Data Collection
+Send2Mealie does not collect, log, or aggregate personal data. No analytics or telemetry tools are included in the source code.
 
-Send2Mealie does not collect, log, or aggregate personal data.
+### 1\. Recipe URLs
 
-The extension does not use analytics, telemetry, advertising identifiers, or tracking technologies.
+- **Detection:** On approved sites, the extension sends only the current tab's URL to the user's Mealie instance to verify if the page is a compatible recipe.
 
-## Data Access and Use
+- **Duplicate Checking:** The URL is used to query the user's Mealie database to check if the recipe has already been imported.
 
-Send2Mealie accesses the following data strictly to perform its core functionality:
+- **Importing:** Only upon explicit user action (clicking the "Send to Mealie" button), the URL is transmitted to the Mealie API for processing.
 
-### Recipe Page URLs
+- **No Content Scraping:** The extension does **not** read or transmit the page's HTML, text content, or images. All scraping is performed server-side by the user's Mealie instance.
 
-- On websites explicitly approved by the user, Send2Mealie checks whether the current page can be scraped as a recipe.
-- When a recipe page is detected, the page URL is sent to the user’s Mealie server to determine whether the recipe already exists.
-- If the user chooses to import the recipe, the page URL is sent to the user’s Mealie server for processing.
 
-### Mealie Configuration Data
+### 2\. Authentication Credentials
 
-- The Mealie server URL and API token are provided by the user.
-- These credentials are stored using Chrome’s encrypted sync storage.
-- Credentials are used only to authenticate requests to the user’s own Mealie instance.
+- The Mealie URL and API Token provided by the user are stored locally using `chrome.storage.sync`.
 
-## Data Sharing
+- These credentials are transmitted only to the user-specified Mealie server for authentication purposes.
 
-Send2Mealie does not sell, share, or transfer data to third parties.
 
-All network requests are limited to:
-- User-approved recipe websites
-- The user’s configured Mealie server
+## Permissions and User Control
 
-## User Control
+- **Limited Operation:** The extension's content script only executes on a pre-defined whitelist of recipe sites or custom domains manually added by the user.
 
-- The extension runs only on websites explicitly approved by the user.
-- Additional sites require explicit approval via Chrome’s permission prompt.
-- Removing a site immediately stops all access to that site.
-- Uninstalling the extension removes all locally stored data.
+- **Host Permissions:** The extension requests host permissions only for the user's specific Mealie instance and any custom domains added via the "Add Site" feature.
 
-## Data Retention and Deletion
+- **Revocation:** Users can remove site permissions at any time through the extension popup, which triggers `chrome.permissions.remove`.
 
-Send2Mealie retains no data outside the user’s browser or the user’s Mealie server.
 
-All locally stored configuration data is deleted when the extension is uninstalled.
+## Data Retention and Third Parties
 
-## Changes to This Policy
+- **No Third-Party Sharing:** No data is ever sold, shared, or transferred to third parties or external servers.
 
-Updates to this privacy policy will be published in the project repository and reflected in the Chrome Web Store listing.
+- **Local Deletion:** All configuration data, including API tokens, is removed from the browser when the extension is uninstalled.

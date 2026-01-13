@@ -96,6 +96,16 @@ async function test() {
     alert("Invalid Mealie URL. Must be HTTPS.");
     return;
   }
+  // Check if we already have permission for this specific Mealie instance
+  const hasPermission = await chrome.permissions.contains({ origins: [origin] });
+
+  if (!hasPermission) {
+    const granted = await chrome.permissions.request({ origins: [origin] });
+    if (!granted) {
+      alert("Permission denied. The extension cannot reach your Mealie server without permission.");
+      return;
+    }
+  }
   try {
     const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiToken}` } });
     if (resp.ok) {
