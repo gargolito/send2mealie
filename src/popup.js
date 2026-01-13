@@ -37,6 +37,24 @@ async function load() {
   document.getElementById("mealieApiKey").value = cfg.mealieApiKey || "";
   document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
 
+  const pendingSiteUrl = localStorage.getItem("pendingSiteUrl");
+  if (pendingSiteUrl) {
+    try {
+      const urlObj = new URL(pendingSiteUrl);
+      const domain = urlObj.hostname.replace(/^www\./, '');
+      let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+
+      if (!userSites.includes(domain)) {
+        userSites.push(domain);
+        await chrome.storage.sync.set({ userSites });
+      }
+      document.getElementById("customSiteUrl").value = "";
+    } catch (err) {
+      console.error("Error auto-saving site:", err);
+    }
+    localStorage.removeItem("pendingSiteUrl");
+  }
+
   renderSitesList();
 }
 
@@ -63,11 +81,14 @@ async function renderSitesList() {
       userSites = userSites.filter(s => s !== siteToRemove);
       await chrome.storage.sync.set({ userSites });
 
-      chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, (removed) => {
-        console.log(`Permission ${removed ? 'removed' : 'not removed'} for ${siteToRemove}`);
+      await new Promise((resolve) => {
+        chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, (removed) => {
+          console.log(`Permission ${removed ? 'removed' : 'not removed'} for ${siteToRemove}`);
+          resolve();
+        });
       });
 
-      renderSitesList();
+      await renderSitesList();
     });
   });
 }
@@ -103,43 +124,25 @@ async function addUserSite(url) {
     const domain = urlObj.hostname.replace(/^www\./, '');
     const origin = `https://${domain}/*`;
 
-    console.log(`Requesting permission for: ${origin}`);
-
     const hasPermission = await chrome.permissions.contains({
       origins: [origin]
     });
-    console.log(`Already has permission: ${hasPermission}`);
 
-    if (hasPermission) {
-      let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
-      console.log(`Current userSites: ${JSON.stringify(userSites)}`);
-      if (!userSites.includes(domain)) {
-        userSites.push(domain);
-        await chrome.storage.sync.set({ userSites });
-        console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
-        await renderSitesList();
-      }
+    if (!hasPermission) {
+      localStorage.setItem("pendingSiteUrl", url);
+      alert(`Click OK to grant permission for ${domain}. Return to this popup when done.`);
+      chrome.permissions.request({ origins: [origin] });
+      return;
+    }
+
+    let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+    if (!userSites.includes(domain)) {
+      userSites.push(domain);
+      await chrome.storage.sync.set({ userSites });
+      await renderSitesList();
       alert(`Site added: ${domain}`);
     } else {
-      chrome.permissions.request({ origins: [origin] }, async (granted) => {
-        console.log(`Permission request result: ${granted}`);
-
-        if (granted) {
-          console.log(`Permission granted for ${origin}`);
-          const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
-          console.log(`Current userSites: ${JSON.stringify(userSites)}`);
-          if (!userSites.includes(domain)) {
-            userSites.push(domain);
-            await chrome.storage.sync.set({ userSites });
-            console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
-          }
-          await renderSitesList();
-          alert(`Site added: ${domain}`);
-        } else {
-          console.warn(`Permission denied for ${origin}`);
-          alert(`Permission denied. The site cannot be added.`);
-        }
-      });
+      alert(`${domain} is already added.`);
     }
   } catch (err) {
     console.error("Error adding site:", err);
