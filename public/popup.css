@@ -15,6 +15,7 @@ body {
   max-height: 600px;
   overflow-y: auto;
   margin: 12px;
+  background-color: #fbf5ef;
 }
 
 label {

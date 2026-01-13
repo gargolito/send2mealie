@@ -1,6 +1,6 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
 
-# Send2Mealie (1.5.6) (1.5.6) (1.5.6)
+# Send2Mealie (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6) (1.5.6)
 
 **Send recipes from the web directly to your Mealie instance.**
 

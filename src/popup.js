@@ -1,5 +1,4 @@
-// const DEFAULT_WHITELIST = ["allrecipes.com","bbcgoodfood.com","budgetbytes.com","cooking.nytimes.com","eatingwell.com","food.com","foodnetwork.com","sallysbakingaddiction.com","seriouseats.com","simplyrecipes.com","skinnytaste.com","tasty.co","tastykitchen.com","thepioneerwoman.com","thespruceeats.com"];
-const DEFAULT_WHITELIST = ["allrecipes.com", "bbcgoodfood.com", "budgetbytes.com", "cooking.nytimes.com", "eatingwell.com", "food.com", "foodnetwork.com", "sallysbakingaddiction.com", "seriouseats.com", "simplyrecipes.com", "skinnytaste.com", "tasty.co", "tastykitchen.com", "thepioneerwoman.com", "thespruceeats.com"];
+import { DEFAULT_WHITELIST } from './whitelist.js';
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
