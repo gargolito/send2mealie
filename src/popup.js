@@ -49,6 +49,11 @@ async function renderSitesList() {
       let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
       userSites = userSites.filter(s => s !== siteToRemove);
       await chrome.storage.sync.set({ userSites });
+
+      chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, (removed) => {
+        console.log(`Permission ${removed ? 'removed' : 'not removed'} for ${siteToRemove}`);
+      });
+
       renderSitesList();
     });
   });
@@ -99,27 +104,24 @@ async function addUserSite(url) {
         userSites.push(domain);
         await chrome.storage.sync.set({ userSites });
         console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
-        renderSitesList();
+        await renderSitesList();
       }
       alert(`Site added: ${domain}`);
     } else {
-      chrome.permissions.request({ origins: [origin] }, (granted) => {
+      chrome.permissions.request({ origins: [origin] }, async (granted) => {
         console.log(`Permission request result: ${granted}`);
 
         if (granted) {
           console.log(`Permission granted for ${origin}`);
-          chrome.storage.sync.get({ userSites: [] }, (data) => {
-            let userSites = data.userSites || [];
-            console.log(`Current userSites: ${JSON.stringify(userSites)}`);
-            if (!userSites.includes(domain)) {
-              userSites.push(domain);
-              chrome.storage.sync.set({ userSites }, () => {
-                console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
-                renderSitesList();
-              });
-            }
-            alert(`Site added: ${domain}`);
-          });
+          const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+          console.log(`Current userSites: ${JSON.stringify(userSites)}`);
+          if (!userSites.includes(domain)) {
+            userSites.push(domain);
+            await chrome.storage.sync.set({ userSites });
+            console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
+          }
+          await renderSitesList();
+          alert(`Site added: ${domain}`);
         } else {
           console.warn(`Permission denied for ${origin}`);
           alert(`Permission denied. The site cannot be added.`);
