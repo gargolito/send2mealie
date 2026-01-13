@@ -1,66 +1,147 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
 
-# Send2Mealie (1.5.4)
+# Send2Mealie (1.5.6) (1.5.6) (1.5.6)
 
-A Chrome extension that adds a "Send to Mealie" button to recipe websites, allowing you to quickly save recipes to your own Mealie server.
+**Send recipes from the web directly to your Mealie instance.**
+
+Send2Mealie is a Chrome extension that adds a “Send to Mealie” button to supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
+
+Built for self-hosters who want explicit control, minimal permissions, and predictable behavior.
+
+* * *
 
 ## Features
 
-- **15+ pre-configured recipe sites** - Instantly add button to popular recipe websites (AllRecipes, Food Network, BBC Good Food, NYT Cooking, and more)
-- **Add custom recipe sites** - Users can add any website with optional host permissions, stored securely in Chrome
-- **Auto-detect "Mealied!" state** - Shows when a recipe is already saved to your Mealie instance
-- **Duplicate detection** - Optional: warn before sending recipes you've already imported
-- **Secure configuration** - Mealie URL and API key stored in Chrome's encrypted sync storage
-- **Auto-save settings** - Settings save instantly as you type
-- **Security hardened** - Redacted error messages, strict URL validation, minimal permissions
+-   **15+ pre-configured recipe sites**
+    Works out of the box on popular recipe sites including AllRecipes, Food Network, BBC Good Food, NYT Cooking, and more.
 
-## Install
+-   **User-added custom sites**
+    Add additional recipe websites using Chrome’s optional host permissions. Access is granted only after explicit user approval.
+
+-   **Recipe state detection**
+    Automatically indicates when a recipe has already been saved to your Mealie instance (“Mealied!”).
+
+-   **Duplicate detection**
+    Optional warning before importing recipes that already exist in Mealie.
+
+-   **Secure configuration storage**
+    Mealie server URL and API token are stored using Chrome’s encrypted sync storage.
+
+-   **Immediate settings persistence**
+    Configuration changes are saved automatically.
+
+-   **Security-focused design**
+    Strict URL validation, redacted error messages, minimal permissions, and no background scraping outside approved sites.
+
+
+* * *
+
+## Installation
 
 ### From Source (Development)
 
-```bash
-git clone https://github.com/gargolito/send2mealie.git
-cd send2mealie
-npm install
-npm run build
-```
+bash
 
-Then load in Chrome:
-1. Go to `chrome://extensions/`
-2. Enable "Developer mode" (top right)
-3. Click "Load unpacked"
-4. Select the `build/` directory
+Copy code
 
-### Configuration
+`git clone https://github.com/gargolito/send2mealie.git cd send2mealie npm install npm run build`
 
-1. Click the extension icon
-2. Enter your Mealie server URL (HTTPS required)
-3. Enter your Mealie API key (generated in Mealie settings)
-4. Click "Test connection" to verify
-5. Add custom recipe sites as needed
+Load the extension in Chrome:
 
-### Development
+1.  Open `chrome://extensions/`
 
-See [DEVELOPMENT.md](./DEVELOPMENT.md) for setup, architecture, and contribution guidelines.
+2.  Enable **Developer mode**
+
+3.  Click **Load unpacked**
+
+4.  Select the `build/` directory
+
+
+* * *
+
+## Configuration
+Get a token from your mealie server (http://mealie.example.com/user/profile/api-tokens)
+
+1.  Click the Send2Mealie extension icon
+
+2.  Enter your Mealie server URL (HTTPS required)
+
+3.  Enter your Mealie API token (generated in Mealie settings)
+
+4.  Click **Test Connection** to verify connectivity
+
+5.  Add additional recipe sites if desired
+
+
+* * *
 
 ## Supported Recipe Sites
 
-Default supported sites include:
-- AllRecipes, BBC Good Food, Budget Bytes, Cooking.com (NYT), Eating Well
-- Food.com, Food Network, Sally's Baking Addiction, Serious Eats
-- Simply Recipes, Skinny Taste, Tasty, Tasty Kitchen, The Pioneer Woman, The Spruce Eats
+Default mealie supported sites include:
 
-Add any site you want via the popup's "Add Custom Site" feature.
+-   AllRecipes
+
+-   BBC Good Food
+
+-   Budget Bytes
+
+-   Eating Well
+
+-   Food.com
+
+-   Food Network
+
+-   NYT Cooking
+
+-   Sally’s Baking Addiction
+
+-   Serious Eats
+
+-   Simply Recipes
+
+-   Skinny Taste
+
+-   Tasty
+
+-   Tasty Kitchen
+
+-   The Pioneer Woman
+
+-   The Spruce Eats
+
+
+Additional sites can be added via the popup using explicit Chrome permission prompts.
+
+* * *
 
 ## Privacy
 
-Send2Mealie respects your privacy:
-- No data collection or tracking
-- Only communicates with your Mealie server and recipe websites you approve
-- All credentials stored locally in Chrome (encrypted sync storage)
-- See [PRIVACY.md](./PRIVACY.md) for full details
+Send2Mealie is designed to minimize data access:
+
+-   No analytics, tracking, or telemetry
+
+-   No third-party data sharing
+
+-   Network requests are limited to:
+
+    -   User-approved recipe websites
+
+    -   The user’s configured Mealie server
+
+-   Credentials are stored locally using Chrome’s encrypted sync storage
+
+
+See [PRIVACY.md](https://chatgpt.com/c/PRIVACY.md) for full details.
+
+* * *
+
+## Development
+
+See [DEVELOPMENT.md](https://chatgpt.com/c/DEVELOPMENT.md) for architecture notes, setup instructions, and contribution guidelines.
+
+* * *
 
 ## License
 
-See LICENSE file
+See the `LICENSE` file for details.
 

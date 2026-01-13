@@ -107,7 +107,7 @@ export const DEFAULT_WHITELIST = [
 
 ### Manual Testing
 1. Load extension in Chrome (see Setup section)
-2. Configure Mealie URL and API key in popup
+2. Configure Mealie URL and API token in popup
 3. Visit a recipe site (e.g., allrecipes.com)
 4. Verify "Send to Mealie" button appears
 5. Click button → should send recipe to Mealie
@@ -128,7 +128,7 @@ export const DEFAULT_WHITELIST = [
 
 ### 2. User-Added Sites (Optional Permissions)
 - **File:** `src/popup.js` (addUserSite function)
-- **How it works:** 
+- **How it works:**
   - User enters URL → script extracts domain
   - Request permission via `chrome.permissions.request()`
   - Store domain in `chrome.storage.sync.userSites`
@@ -139,12 +139,12 @@ export const DEFAULT_WHITELIST = [
 - **File:** `src/background.js` (isRecipePage function)
 - **How it works:** Calls Mealie's test-scrape-url endpoint
 - **Logic:** If content-length > 1000, likely a recipe
-- **Note:** Page must have mealieUrl and mealieApiKey configured
+- **Note:** Page must have mealieUrl and mealieApiToken configured
 
 ### 4. Duplicate Detection
 - **File:** `src/background.js` (checkDuplicate function)
 - **How it works:** Queries Mealie recipes API with orgURL filter
-- **When used:** 
+- **When used:**
   - Always on page load (to show "Mealied!" state)
   - If enableDuplicateCheck is enabled, warns before sending
 - **Storage:** User preference in `chrome.storage.sync`
@@ -152,7 +152,7 @@ export const DEFAULT_WHITELIST = [
 ### 5. Auto-Save Settings
 - **File:** `src/popup.js` (autoSave function)
 - **Trigger:** Input/checkbox change
-- **Saved:** Mealie URL, API key, duplicate check preference
+- **Saved:** Mealie URL, API token, duplicate check preference
 
 ## Security & Privacy
 
@@ -188,12 +188,12 @@ Uncomment console statements in background.js and contentScript.js (note: redact
 - [ ] Check manifest has correct host_permissions
 - [ ] Verify site is in whitelist or userSites
 - [ ] Check if page passes recipe detection (Mealie test-scrape-url)
-- [ ] Verify Mealie URL and API key are configured
+- [ ] Verify Mealie URL and API token are configured
 
 **Duplicate detection not working:**
 - [ ] Verify enableDuplicateCheck is enabled in popup
 - [ ] Check Mealie server is reachable
-- [ ] Verify API key has permission to query recipes
+- [ ] Verify API token has permission to query recipes
 
 **User site not working after adding:**
 - [ ] Ensure permission was granted (browser should ask)

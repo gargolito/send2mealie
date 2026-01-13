@@ -83,7 +83,7 @@ The build script handles all the syncing automatically.
 
 - **Chrome sync storage:**
   - `mealieUrl` - User's Mealie server URL
-  - `mealieApiKey` - User's API key
+  - `mealieApiToken` - User's API token
   - `enableDuplicateCheck` - Duplicate detection preference
   - `userSites` - Array of user-added domains
 
@@ -113,7 +113,7 @@ The build script handles all the syncing automatically.
 - Check whitelist includes the domain
 
 ### Test Recipe Detection
-- Configure Mealie URL & API key
+- Configure Mealie URL & API token
 - Visit recipe page
 - Button should appear if isRecipePage() returns true
 
@@ -128,7 +128,7 @@ The build script handles all the syncing automatically.
 - [ ] Extension loads without errors (chrome://extensions)
 - [ ] Service Worker shows no errors
 - [ ] Mealie URL uses HTTPS
-- [ ] API key is valid
+- [ ] API token is valid
 - [ ] Site domain is in whitelist or userSites
 - [ ] Test connection passes before testing button
 - [ ] Page actually contains recipe content

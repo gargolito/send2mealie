@@ -1,5 +1,5 @@
 // const DEFAULT_WHITELIST = ["allrecipes.com","bbcgoodfood.com","budgetbytes.com","cooking.nytimes.com","eatingwell.com","food.com","foodnetwork.com","sallysbakingaddiction.com","seriouseats.com","simplyrecipes.com","skinnytaste.com","tasty.co","tastykitchen.com","thepioneerwoman.com","thespruceeats.com"];
-const DEFAULT_WHITELIST = ["allrecipes.com","bbcgoodfood.com","budgetbytes.com","cooking.nytimes.com","eatingwell.com","food.com","foodnetwork.com","sallysbakingaddiction.com","seriouseats.com","simplyrecipes.com","skinnytaste.com","tasty.co","tastykitchen.com","thepioneerwoman.com","thespruceeats.com"];
+const DEFAULT_WHITELIST = ["allrecipes.com", "bbcgoodfood.com", "budgetbytes.com", "cooking.nytimes.com", "eatingwell.com", "food.com", "foodnetwork.com", "sallysbakingaddiction.com", "seriouseats.com", "simplyrecipes.com", "skinnytaste.com", "tasty.co", "tastykitchen.com", "thepioneerwoman.com", "thespruceeats.com"];
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
@@ -13,10 +13,10 @@ function isValidUrl(url) {
 
 async function autoSave() {
   const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
-  const mealieApiKey = document.getElementById("mealieApiKey").value.trim();
+  const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
   const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
 
-  await chrome.storage.sync.set({ mealieUrl, mealieApiKey, enableDuplicateCheck });
+  await chrome.storage.sync.set({ mealieUrl, mealieApiToken, enableDuplicateCheck });
 }
 
 function showDefaultSitesModal() {
@@ -32,9 +32,9 @@ function closeModal() {
 }
 
 async function load() {
-  const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey", "enableDuplicateCheck"]);
+  const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck"]);
   document.getElementById("mealieUrl").value = cfg.mealieUrl || "";
-  document.getElementById("mealieApiKey").value = cfg.mealieApiKey || "";
+  document.getElementById("mealieApiToken").value = cfg.mealieApiToken || "";
   document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
 
   const pendingSiteUrl = localStorage.getItem("pendingSiteUrl");
@@ -92,15 +92,15 @@ async function renderSitesList() {
 
 async function test() {
   const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
-  const mealieApiKey = document.getElementById("mealieApiKey").value.trim();
+  const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
   if (!isValidUrl(mealieUrl)) {
     alert("Invalid Mealie URL. Must be HTTPS.");
     return;
   }
   try {
-    const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiKey}` } });
+    const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiToken}` } });
     if (resp.ok) {
-      await chrome.storage.sync.set({ mealieUrl, mealieApiKey });
+      await chrome.storage.sync.set({ mealieUrl, mealieApiToken });
       alert("Connection OK");
     } else {
       alert("Connection failed");
@@ -110,8 +110,8 @@ async function test() {
 
 async function sendCurrent() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const { mealieUrl, mealieApiKey } = await chrome.storage.sync.get(["mealieUrl", "mealieApiKey"]);
-  if (!mealieUrl || !mealieApiKey) { alert("Please configure Mealie first."); return; }
+  const { mealieUrl, mealieApiToken } = await chrome.storage.sync.get(["mealieUrl", "mealieApiToken"]);
+  if (!mealieUrl || !mealieApiToken) { alert("Please configure Mealie first."); return; }
   chrome.runtime.sendMessage({ type: "createViaApi", url: tab.url });
 }
 
@@ -148,7 +148,7 @@ async function addUserSite(url) {
 }
 
 document.getElementById("mealieUrl").addEventListener("input", autoSave);
-document.getElementById("mealieApiKey").addEventListener("input", autoSave);
+document.getElementById("mealieApiToken").addEventListener("input", autoSave);
 document.getElementById("enableDuplicateCheck").addEventListener("change", autoSave);
 
 document.getElementById("testBtn").addEventListener("click", test);
