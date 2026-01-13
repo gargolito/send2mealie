@@ -49,7 +49,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       });
     }
   } catch (e) {
-    console.error('Error injecting content script:', e);
+    console.error('Send2Mealie: Error injecting content script');
   }
 });
 

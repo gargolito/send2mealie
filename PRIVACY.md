@@ -36,8 +36,10 @@ All network requests are limited to:
 
 ## User Control
 
-- The extension runs only on sites explicitly approved by the user.
+- The extension comes pre-configured with a default whitelist of popular recipe websites (allrecipes.com, eatingwell.com, foodnetwork.com, food.com, simplyrecipes.com, seriouseats.com, budgetbytes.com, tasty.co).
+- Users can add additional websites with explicit permission grants.
 - Removing a site from the whitelist immediately stops all requests to that site.
+- Users can uninstall the extension at any time to disable all functionality and remove all stored data.
 - Uninstalling the extension removes all locally stored data.
 
 ## Data Retention and Deletion

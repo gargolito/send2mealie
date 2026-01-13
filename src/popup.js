@@ -50,7 +50,7 @@ async function load() {
       }
       document.getElementById("customSiteUrl").value = "";
     } catch (err) {
-      console.error("Error auto-saving site:", err);
+      console.error("Error auto-saving site");
     }
     localStorage.removeItem("pendingSiteUrl");
   }
@@ -81,11 +81,8 @@ async function renderSitesList() {
       userSites = userSites.filter(s => s !== siteToRemove);
       await chrome.storage.sync.set({ userSites });
 
-      await new Promise((resolve) => {
-        chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, (removed) => {
-          console.log(`Permission ${removed ? 'removed' : 'not removed'} for ${siteToRemove}`);
-          resolve();
-        });
+      chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, () => {
+        console.log('Permission update processed');
       });
 
       await renderSitesList();
@@ -145,7 +142,7 @@ async function addUserSite(url) {
       alert(`${domain} is already added.`);
     }
   } catch (err) {
-    console.error("Error adding site:", err);
+    console.error("Error adding site");
     alert("Invalid URL. Please enter a valid website URL (e.g., https://example.com or https://example.com/recipe/123).");
   }
 }
