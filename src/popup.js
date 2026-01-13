@@ -82,8 +82,8 @@ async function sendCurrent() {
 async function addUserSite(url) {
   try {
     const urlObj = new URL(url);
-    const origin = urlObj.origin + "/*";
     const domain = urlObj.hostname.replace(/^www\./, '');
+    const origin = `https://${domain}/*`;
 
     console.log(`Requesting permission for: ${origin}`);
 
@@ -103,31 +103,32 @@ async function addUserSite(url) {
       }
       alert(`Site added: ${domain}`);
     } else {
-      const granted = await chrome.permissions.request({
-        origins: [origin]
-      });
+      chrome.permissions.request({ origins: [origin] }, (granted) => {
+        console.log(`Permission request result: ${granted}`);
 
-      console.log(`Permission request result: ${granted}`);
-
-      if (granted) {
-        console.log(`Permission granted for ${origin}`);
-        let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
-        console.log(`Current userSites: ${JSON.stringify(userSites)}`);
-        if (!userSites.includes(domain)) {
-          userSites.push(domain);
-          await chrome.storage.sync.set({ userSites });
-          console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
-          renderSitesList();
+        if (granted) {
+          console.log(`Permission granted for ${origin}`);
+          chrome.storage.sync.get({ userSites: [] }, (data) => {
+            let userSites = data.userSites || [];
+            console.log(`Current userSites: ${JSON.stringify(userSites)}`);
+            if (!userSites.includes(domain)) {
+              userSites.push(domain);
+              chrome.storage.sync.set({ userSites }, () => {
+                console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
+                renderSitesList();
+              });
+            }
+            alert(`Site added: ${domain}`);
+          });
+        } else {
+          console.warn(`Permission denied for ${origin}`);
+          alert(`Permission denied. The site cannot be added.`);
         }
-        alert(`Site added: ${domain}`);
-      } else {
-        console.warn(`Permission denied for ${origin}`);
-        alert(`Permission denied. The site cannot be added.`);
-      }
+      });
     }
   } catch (err) {
     console.error("Error adding site:", err);
-    alert("Invalid URL. Please enter a valid website URL.");
+    alert("Invalid URL. Please enter a valid website URL (e.g., https://example.com or https://example.com/recipe/123).");
   }
 }
 

@@ -34,6 +34,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return;
 
   try {
+    if (!tab.url) return;
+
     const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
     if (userSites.length === 0) return;
 
