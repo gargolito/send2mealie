@@ -10,9 +10,10 @@
     input[type="text"], input[type="password"] { width: 320px; padding: 8px; }
     button { margin-top: 10px; }
     .row { display:flex; gap:8px; align-items:center; }
-    #saveBtn { width: 100%; margin-top: 20px; padding: 12px; font-size: 16px; font-weight: bold; }
-    #saveBtn.no-change { background: #E58325; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    #saveBtn.changed { background: #DC143C; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    #sitesList { border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; margin: 8px 0; }
+    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+    .site-item:last-child { border-bottom: none; }
+    .site-item button { margin: 0; padding: 4px 8px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -32,7 +33,8 @@
   <label>Add Custom Site</label>
   <input id="customSiteUrl" type="text" placeholder="https://example.com">
   <button id="addSiteBtn">Add Site</button>
-  <button id="saveBtn" class="no-change">Save</button>
+  <label style="margin-top: 16px;">Custom Sites</label>
+  <div id="sitesList"></div>
   <script src="popup.js"></script>
 </body>
 </html>

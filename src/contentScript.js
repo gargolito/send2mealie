@@ -78,7 +78,7 @@
     const hostname = new URL(location.href).hostname;
     const domain = hostname.replace(/^www\./, '');
     // const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
-    const DEFAULT_WHITELIST = ["eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+    const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
 
     try {
       const data = await chrome.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiKey']);

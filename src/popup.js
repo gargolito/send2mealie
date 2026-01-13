@@ -1,5 +1,4 @@
 // const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
-let initialState = {};
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
@@ -11,24 +10,12 @@ function isValidUrl(url) {
   }
 }
 
-function hasChanges() {
-  const current = {
-    url: document.getElementById("mealieUrl").value.trim(),
-    key: document.getElementById("mealieApiKey").value.trim(),
-    check: document.getElementById("enableDuplicateCheck").checked
-  };
-  return JSON.stringify(current) !== JSON.stringify(initialState);
-}
+async function autoSave() {
+  const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
+  const mealieApiKey = document.getElementById("mealieApiKey").value.trim();
+  const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
 
-function updateSaveButtonState() {
-  const saveBtn = document.getElementById("saveBtn");
-  if (hasChanges()) {
-    saveBtn.classList.remove("no-change");
-    saveBtn.classList.add("changed");
-  } else {
-    saveBtn.classList.remove("changed");
-    saveBtn.classList.add("no-change");
-  }
+  await chrome.storage.sync.set({ mealieUrl, mealieApiKey, enableDuplicateCheck });
 }
 
 async function load() {
@@ -37,30 +24,34 @@ async function load() {
   document.getElementById("mealieApiKey").value = cfg.mealieApiKey || "";
   document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
 
-  initialState = {
-    url: document.getElementById("mealieUrl").value.trim(),
-    key: document.getElementById("mealieApiKey").value.trim(),
-    check: document.getElementById("enableDuplicateCheck").checked
-  };
-  updateSaveButtonState();
+  renderSitesList();
 }
 
-async function save() {
-  const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
-  const mealieApiKey = document.getElementById("mealieApiKey").value.trim();
-  const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
+async function renderSitesList() {
+  const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+  const listEl = document.getElementById("sitesList");
 
-  if (!isValidUrl(mealieUrl)) {
-    alert("Invalid Mealie URL. Must be HTTPS.");
-    return;
-  }
-  if (!mealieApiKey || mealieApiKey.length < 10) {
-    alert("Invalid API key.");
+  if (userSites.length === 0) {
+    listEl.innerHTML = '<div style="padding: 8px; color: #999; text-align: center;">No custom sites added</div>';
     return;
   }
 
-  await chrome.storage.sync.set({ mealieUrl, mealieApiKey, enableDuplicateCheck });
-  window.close();
+  listEl.innerHTML = userSites.map(site => `
+    <div class="site-item">
+      <span>${site}</span>
+      <button data-site="${site}">Remove</button>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const siteToRemove = e.target.dataset.site;
+      let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+      userSites = userSites.filter(s => s !== siteToRemove);
+      await chrome.storage.sync.set({ userSites });
+      renderSitesList();
+    });
+  });
 }
 
 async function test() {
@@ -72,7 +63,12 @@ async function test() {
   }
   try {
     const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiKey}` } });
-    alert(resp.ok ? "Connection OK" : "Connection failed");
+    if (resp.ok) {
+      await chrome.storage.sync.set({ mealieUrl, mealieApiKey });
+      alert("Connection OK");
+    } else {
+      alert("Connection failed");
+    }
   } catch (e) { alert("Connection error"); }
 }
 
@@ -91,24 +87,22 @@ async function addUserSite(url) {
 
     console.log(`Requesting permission for: ${origin}`);
 
-    // Check if already have permission
     const hasPermission = await chrome.permissions.contains({
       origins: [origin]
     });
     console.log(`Already has permission: ${hasPermission}`);
 
     if (hasPermission) {
-      // Already have permission, just add to storage
       let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
       console.log(`Current userSites: ${JSON.stringify(userSites)}`);
       if (!userSites.includes(domain)) {
         userSites.push(domain);
         await chrome.storage.sync.set({ userSites });
         console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
+        renderSitesList();
       }
       alert(`Site added: ${domain}`);
     } else {
-      // Request permission
       const granted = await chrome.permissions.request({
         origins: [origin]
       });
@@ -123,6 +117,7 @@ async function addUserSite(url) {
           userSites.push(domain);
           await chrome.storage.sync.set({ userSites });
           console.log(`Saved userSites: ${JSON.stringify(userSites)}`);
+          renderSitesList();
         }
         alert(`Site added: ${domain}`);
       } else {
@@ -136,11 +131,10 @@ async function addUserSite(url) {
   }
 }
 
-document.getElementById("mealieUrl").addEventListener("input", updateSaveButtonState);
-document.getElementById("mealieApiKey").addEventListener("input", updateSaveButtonState);
-document.getElementById("enableDuplicateCheck").addEventListener("change", updateSaveButtonState);
+document.getElementById("mealieUrl").addEventListener("input", autoSave);
+document.getElementById("mealieApiKey").addEventListener("input", autoSave);
+document.getElementById("enableDuplicateCheck").addEventListener("change", autoSave);
 
-document.getElementById("saveBtn").addEventListener("click", save);
 document.getElementById("testBtn").addEventListener("click", test);
 document.getElementById("addSiteBtn").addEventListener("click", () => {
   const url = document.getElementById("customSiteUrl").value.trim();
