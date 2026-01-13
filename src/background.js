@@ -6,7 +6,7 @@ async function isRecipePage(url, mealieUrl, mealieApiToken) {
     const endpoint = new URL('/api/recipes/test-scrape-url', mealieUrl);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 100);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     // Determines whether the current page URL can be scraped as a recipe by Mealie.
     // This request sends only the page URL for compatibility checking.
     // No page content, user data, or browsing history is transmitted.
@@ -25,7 +25,7 @@ async function isRecipePage(url, mealieUrl, mealieApiToken) {
     if (!resp.ok) return false;
 
     const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
-    return contentLength > 1000;
+    return contentLength > 500;
   } catch (e) {
     return false;
   }
