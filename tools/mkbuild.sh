@@ -5,6 +5,7 @@ project=${PWD##*/}
 [[ -d build ]] || exit 1
 pushd ./build > /dev/null 2>&1
 version=$(jq -r .version ../public/manifest.json)
+sed -i "s/^\# Send2Mealie/& ($version)/g" ../README.md
 pkg=${project}-${version}.zip
 [[ -d ../dist ]] || mkdir ../dist
 rm ../dist/*

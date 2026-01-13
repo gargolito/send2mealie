@@ -1,6 +1,6 @@
-# <img src="public/icons/icon_512.png" width="512" align="center">
+# <img src="public/icons/icon_512.png" width="256" align="center">
 
-# Send2Mealie
+# Send2Mealie (1.5.4)
 
 A Chrome extension that adds a "Send to Mealie" button to recipe websites, allowing you to quickly save recipes to your own Mealie server.
 
