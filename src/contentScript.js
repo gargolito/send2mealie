@@ -53,8 +53,8 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
 
   async function checkRecipeExists() {
     try {
-      const data = await chrome.storage.sync.get(['mealieUrl', 'mealieApiKey', 'enableDuplicateCheck']);
-      if (!data.enableDuplicateCheck || !data.mealieUrl || !data.mealieApiKey) {
+      const data = await chrome.storage.sync.get(['mealieUrl', 'mealieApiKey']);
+      if (!data.mealieUrl || !data.mealieApiKey) {
         return;
       }
 
@@ -72,7 +72,7 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
         }
       );
     } catch (e) {
-      console.error('Send2Mealie: Error checking recipe existence', e);
+      console.error('Send2Mealie: Error checking recipe existence');
     }
   }
 
