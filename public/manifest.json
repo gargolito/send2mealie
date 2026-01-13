@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Send2Mealie",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages.",
   "action": {
     "default_title": "Send to Mealie",
@@ -27,13 +27,20 @@
   ],
   "host_permissions": [
     "https://*.allrecipes.com/*",
-    "https://*.foodnetwork.com/*",
     "https://*.eatingwell.com/*",
+    "https://*.foodnetwork.com/*",
     "https://*.food.com/*",
     "https://*.simplyrecipes.com/*",
     "https://*.seriouseats.com/*",
     "https://*.budgetbytes.com/*",
-    "https://*.tasty.co/*"
+    "https://*.tasty.co/*",
+    "https://*.tastykitchen.com/*",
+    "https://*.skinnytaste.com/*",
+    "https://*.bbcgoodfood.com/*",
+    "https://*.thepioneerwoman.com/*",
+    "https://*.cooking.nytimes.com/*",
+    "https://*.sallysbakingaddiction.com/*",
+    "https://*.thespruceeats.com/*"
   ],
   "optional_host_permissions": [
     "https://*/*"
@@ -42,13 +49,20 @@
     {
       "matches": [
         "https://*.allrecipes.com/*",
-        "https://*.foodnetwork.com/*",
         "https://*.eatingwell.com/*",
+        "https://*.foodnetwork.com/*",
         "https://*.food.com/*",
         "https://*.simplyrecipes.com/*",
         "https://*.seriouseats.com/*",
         "https://*.budgetbytes.com/*",
-        "https://*.tasty.co/*"
+        "https://*.tasty.co/*",
+        "https://*.tastykitchen.com/*",
+        "https://*.skinnytaste.com/*",
+        "https://*.bbcgoodfood.com/*",
+        "https://*.thepioneerwoman.com/*",
+        "https://*.cooking.nytimes.com/*",
+        "https://*.sallysbakingaddiction.com/*",
+        "https://*.thespruceeats.com/*"
       ],
       "js": [
         "contentScript.js"
@@ -57,4 +71,3 @@
     }
   ]
 }
-
