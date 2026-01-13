@@ -1,4 +1,5 @@
 // const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
+const DEFAULT_WHITELIST = ["allrecipes.com", "eatingwell.com", "foodnetwork.com", "food.com", "simplyrecipes.com", "seriouseats.com", "budgetbytes.com", "tasty.co"];
 
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
@@ -16,6 +17,18 @@ async function autoSave() {
   const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
 
   await chrome.storage.sync.set({ mealieUrl, mealieApiKey, enableDuplicateCheck });
+}
+
+function showDefaultSitesModal() {
+  const modal = document.getElementById("modal");
+  const listEl = document.getElementById("defaultSitesList");
+  listEl.innerHTML = DEFAULT_WHITELIST.map(site => `<li>${site}</li>`).join('');
+  modal.classList.add("active");
+}
+
+function closeModal() {
+  const modal = document.getElementById("modal");
+  modal.classList.remove("active");
 }
 
 async function load() {
@@ -148,4 +161,18 @@ document.getElementById("addSiteBtn").addEventListener("click", () => {
     alert("Please enter a valid URL.");
   }
 });
+
+document.getElementById("infoBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  showDefaultSitesModal();
+});
+
+document.getElementById("modalClose").addEventListener("click", closeModal);
+
+document.getElementById("modal").addEventListener("click", (e) => {
+  if (e.target.id === "modal") {
+    closeModal();
+  }
+});
+
 load();
