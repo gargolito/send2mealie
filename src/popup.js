@@ -1,5 +1,8 @@
 import { DEFAULT_WHITELIST } from './whitelist.js';
 
+// Use browser namespace (Firefox) if available, otherwise chrome
+const api = typeof browser !== 'undefined' ? browser : chrome;
+
 function trimSlash(u) { return u ? u.replace(/\/$/, '') : u; }
 function isValidUrl(url) {
   try {
@@ -15,7 +18,8 @@ async function autoSave() {
   const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
   const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
 
-  await chrome.storage.sync.set({ mealieUrl, mealieApiToken, enableDuplicateCheck });
+  const sanitizedUrl = mealieUrl && isValidUrl(mealieUrl) ? mealieUrl : "";
+  await api.storage.sync.set({ mealieUrl: sanitizedUrl, mealieApiToken, enableDuplicateCheck });
 }
 
 function showDefaultSitesModal() {
@@ -31,7 +35,7 @@ function closeModal() {
 }
 
 async function load() {
-  const cfg = await chrome.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck"]);
+  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck"]) || {};
   document.getElementById("mealieUrl").value = cfg.mealieUrl || "";
   document.getElementById("mealieApiToken").value = cfg.mealieApiToken || "";
   document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
@@ -41,11 +45,18 @@ async function load() {
     try {
       const urlObj = new URL(pendingSiteUrl);
       const domain = urlObj.hostname.replace(/^www\./, '');
-      let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+      const origin = `https://*.${domain}/*`;
 
-      if (!userSites.includes(domain)) {
-        userSites.push(domain);
-        await chrome.storage.sync.set({ userSites });
+      // Only add site if permission was actually granted
+      const hasPermission = await api.permissions.contains({ origins: [origin] });
+      if (hasPermission) {
+        const result = await api.storage.sync.get({ userSites: [] }) || {};
+        let userSites = result.userSites || [];
+
+        if (!userSites.includes(domain)) {
+          userSites.push(domain);
+          await api.storage.sync.set({ userSites });
+        }
       }
       document.getElementById("customSiteUrl").value = "";
     } catch (err) {
@@ -58,7 +69,8 @@ async function load() {
 }
 
 async function renderSitesList() {
-  const { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+  const result = await api.storage.sync.get({ userSites: [] }) || {};
+  const userSites = result.userSites || [];
   const listEl = document.getElementById("sitesList");
 
   if (userSites.length === 0) {
@@ -76,13 +88,13 @@ async function renderSitesList() {
   listEl.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const siteToRemove = e.target.dataset.site;
-      let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
+      const result = await api.storage.sync.get({ userSites: [] }) || {};
+      let userSites = result.userSites || [];
       userSites = userSites.filter(s => s !== siteToRemove);
-      await chrome.storage.sync.set({ userSites });
+      await api.storage.sync.set({ userSites });
 
-      chrome.permissions.remove({ origins: [`https://${siteToRemove}/*`] }, () => {
-        console.log('Permission update processed');
-      });
+      const origin = `https://*.${siteToRemove}/*`;
+      api.permissions.remove({ origins: [origin] }).catch(() => {});
 
       await renderSitesList();
     });
@@ -96,21 +108,16 @@ async function test() {
     alert("Invalid Mealie URL. Must be HTTPS.");
     return;
   }
-  // Check if we already have permission for this specific Mealie instance
-  const hasPermission = await chrome.permissions.contains({ origins: [origin] });
-
-  if (!hasPermission) {
-    const granted = await chrome.permissions.request({ origins: [origin] });
-    if (!granted) {
-      alert("Permission denied. The extension cannot reach your Mealie server without permission.");
-      return;
-    }
-  }
   try {
-    const resp = await fetch(`${mealieUrl}/api/app/about`, { headers: { Authorization: `Bearer ${mealieApiToken}` } });
+    // Use /api/users/self which requires valid authentication
+    const resp = await fetch(`${mealieUrl}/api/users/self`, {
+      headers: { Authorization: `Bearer ${mealieApiToken}` }
+    });
     if (resp.ok) {
-      await chrome.storage.sync.set({ mealieUrl, mealieApiToken });
+      await api.storage.sync.set({ mealieUrl, mealieApiToken });
       alert("Connection OK");
+    } else if (resp.status === 401) {
+      alert("Invalid API token");
     } else {
       alert("Connection failed");
     }
@@ -118,38 +125,42 @@ async function test() {
 }
 
 async function sendCurrent() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const { mealieUrl, mealieApiToken } = await chrome.storage.sync.get(["mealieUrl", "mealieApiToken"]);
+  const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+  const { mealieUrl, mealieApiToken } = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]);
   if (!mealieUrl || !mealieApiToken) { alert("Please configure Mealie first."); return; }
-  chrome.runtime.sendMessage({ type: "createViaApi", url: tab.url });
+  api.runtime.sendMessage({ type: "createViaApi", url: tab.url });
 }
 
-async function addUserSite(url) {
+function addUserSite(url) {
   try {
     const urlObj = new URL(url);
     const domain = urlObj.hostname.replace(/^www\./, '');
-    const origin = `https://${domain}/*`;
+    // Custom sites are limited to HTTPS origin permissions for consistency across stores
+    const origin = `https://*.${domain}/*`;
 
-    const hasPermission = await chrome.permissions.contains({
-      origins: [origin]
+    // Store pending URL before requesting permission (Firefox closes popup on permission request)
+    localStorage.setItem("pendingSiteUrl", url);
+
+    // Request permission synchronously from click handler (required by Firefox)
+    api.permissions.request({ origins: [origin] }).then(async (granted) => {
+      if (granted) {
+        const result = await api.storage.sync.get({ userSites: [] }) || {};
+        let userSites = result.userSites || [];
+        if (!userSites.includes(domain)) {
+          userSites.push(domain);
+          await api.storage.sync.set({ userSites });
+          localStorage.removeItem("pendingSiteUrl");
+          await renderSitesList();
+          alert(`Site added: ${domain}`);
+        } else {
+          localStorage.removeItem("pendingSiteUrl");
+          alert(`${domain} is already added.`);
+        }
+      } else {
+        localStorage.removeItem("pendingSiteUrl");
+        alert("Permission denied.");
+      }
     });
-
-    if (!hasPermission) {
-      localStorage.setItem("pendingSiteUrl", url);
-      alert(`Click OK to grant permission for ${domain}. Return to this popup when done.`);
-      chrome.permissions.request({ origins: [origin] });
-      return;
-    }
-
-    let { userSites = [] } = await chrome.storage.sync.get({ userSites: [] });
-    if (!userSites.includes(domain)) {
-      userSites.push(domain);
-      await chrome.storage.sync.set({ userSites });
-      await renderSitesList();
-      alert(`Site added: ${domain}`);
-    } else {
-      alert(`${domain} is already added.`);
-    }
   } catch (err) {
     console.error("Error adding site");
     alert("Invalid URL. Please enter a valid website URL (e.g., https://example.com or https://example.com/recipe/123).");

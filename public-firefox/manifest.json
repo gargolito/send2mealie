@@ -1,9 +1,15 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Send2Mealie",
   "version": "1.6.1",
   "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages.",
-  "action": {
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "send2mealie@firefox",
+      "strict_min_version": "109.0"
+    }
+  },
+  "browser_action": {
     "default_title": "Send to Mealie",
     "default_popup": "popup.html",
     "default_icon": {
@@ -18,15 +24,16 @@
     "128": "icons/icon_128.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
   },
   "permissions": [
     "storage",
     "activeTab",
-    "scripting",
-    "notifications"
-  ],
-  "host_permissions": [
+    "tabs",
+    "notifications",
     "https://*.allrecipes.com/*",
     "https://*.bbcgoodfood.com/*",
     "https://*.budgetbytes.com/*",
@@ -43,7 +50,7 @@
     "https://*.thepioneerwoman.com/*",
     "https://*.thespruceeats.com/*"
   ],
-  "optional_host_permissions": [
+  "optional_permissions": [
     "https://*/*"
   ],
   "content_scripts": [

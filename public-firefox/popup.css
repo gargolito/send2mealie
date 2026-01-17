@@ -1,0 +1,159 @@
+/* normalize css starts here */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* normalize css ends here */
+
+body {
+  font-family: -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  color: #111;
+  width: 360px;
+  max-height: 600px;
+  overflow-y: auto;
+  margin: 12px;
+  background-color: #fbf5ef;
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 320px;
+  padding: 8px;
+}
+
+button {
+  margin-top: 6px;
+  background: #E58325;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #d46f1a;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#sitesList {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 130px;
+  overflow-y: auto;
+  margin: 8px 0;
+}
+
+.site-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.site-item:last-child {
+  border-bottom: none;
+}
+
+.site-item button {
+  background: #dc143c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 13px;
+  cursor: pointer;
+  margin: 0;
+  text-transform: lowercase;
+}
+
+.site-item button:hover {
+  background: #b8102d;
+}
+
+.info-btn {
+  background: none;
+  border: none;
+  color: #E58325;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  font-size: 14px;
+}
+
+.info-btn:hover {
+  color: #d46f1a;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.modal-list {
+  list-style: disc;
+  padding-left: 10px;
+  margin: 0;
+}
+
+.modal-list li {
+  padding: 1px 0;
+  border-bottom: none;
+}
+
+.modal-close {
+  background: #E58325;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  margin-top: 6px;
+  width: 100%;
+}
+

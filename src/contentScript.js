@@ -3,6 +3,9 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
 // on user-approved recipe websites and coordinating recipe detection.
 // This script does not scrape page content or transmit browsing data.
 
+// Use browser namespace (Firefox) if available, otherwise chrome
+const api = typeof browser !== 'undefined' ? browser : chrome;
+
 (function () {
   // Prevents duplicate UI injection on the same page
   const BTN_ID = "add-to-mealie-button";
@@ -26,17 +29,17 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
   // Handles explicit user action to send the current recipe URL to Mealie.
   // Recipe import is never performed automatically.
   btn.addEventListener("click", async () => {
-    const data = await chrome.storage.sync.get(["mealieUrl", "mealieApiToken"]);
+    const data = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]) || {};
     const { mealieUrl, mealieApiToken } = data;
     if (!mealieUrl || !mealieApiToken) {
-      chrome.runtime.sendMessage({ type: "openPopup" });
+      api.runtime.sendMessage({ type: "openPopup" });
       return;
     }
     btn.textContent = "Sending...";
     btn.style.background = "#9ACD32";
     btn.style.opacity = "0.7";
     btn.style.pointerEvents = "none";
-    chrome.runtime.sendMessage({ type: "createViaApi", url: location.href }, (response) => {
+    api.runtime.sendMessage({ type: "createViaApi", url: location.href }, (response) => {
       btn.style.opacity = "1";
       btn.style.pointerEvents = "auto";
       if (response?.success) {
@@ -60,12 +63,12 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
   // Only the page URL is sent; no page content is accessed or transmitted.
   async function checkRecipeExists() {
     try {
-      const data = await chrome.storage.sync.get(['mealieUrl', 'mealieApiToken']);
+      const data = await api.storage.sync.get(['mealieUrl', 'mealieApiToken']) || {};
       if (!data.mealieUrl || !data.mealieApiToken) {
         return;
       }
 
-      chrome.runtime.sendMessage(
+      api.runtime.sendMessage(
         { type: "checkDuplicate", url: location.href },
         (response) => {
           if (response?.exists) {
@@ -88,7 +91,7 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
     const domain = hostname.replace(/^www\./, '');
 
     try {
-      const data = await chrome.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiToken']);
+      const data = await api.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiToken']) || {};
       // Built-in supported domains combined with user-approved custom sites.
       // No access occurs outside these domains.
       const whitelist = data.domainWhitelist || DEFAULT_WHITELIST;
@@ -101,7 +104,7 @@ import { DEFAULT_WHITELIST } from './whitelist.js';
         }
         // Determines whether the current page URL can be scraped as a recipe by Mealie.
         // This is a compatibility check using only the URL; no page content is transmitted.
-        chrome.runtime.sendMessage(
+        api.runtime.sendMessage(
           { type: "isRecipePage", url: location.href },
           (response) => {
             if (response?.isRecipe) {

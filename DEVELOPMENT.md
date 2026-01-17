@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-Send2Mealie is a Chrome extension that detects recipe pages on whitelisted websites and allows users to send those recipes to their own Mealie server.
+Send2Mealie is a browser extension that detects recipe pages on whitelisted websites and allows users to send those recipes to their own Mealie server. It supports both Chrome (Manifest V3) and Firefox (Manifest V2).
 
 **Key Technologies:**
 - JavaScript (ES6+)
 - Webpack for bundling
-- Chrome Extensions API (Manifest v3)
-- Chrome Storage API (sync storage)
+- Browser Extensions APIs (Chrome MV3 / Firefox MV2)
+- Browser Storage API (sync storage)
 
 ## Architecture
 
@@ -16,12 +16,14 @@ Send2Mealie is a Chrome extension that detects recipe pages on whitelisted websi
 
 - **src/whitelist.js** - Single source of truth for supported recipe sites (alphabetically sorted)
 - **src/contentScript.js** - Injected into recipe pages; detects recipes and shows button
-- **src/background.js** - Service worker; handles API calls and message passing
+- **src/background.js** - Service worker (Chrome) / background script (Firefox); handles API calls and message passing
+- **src/browser-polyfill.js** - Browser API compatibility layer for Chrome/Firefox
 - **src/popup.js** - Extension popup UI; handles settings and site management
-- **public/popup.html** - Popup markup
-- **public/popup.css** - Popup styles
-- **public/manifest.json** - Extension manifest (auto-generated from whitelist)
-- **tools/generate-manifest.js** - Build script that syncs whitelist to manifest and popup.js
+- **public/popup.html** - Popup markup (Chrome)
+- **public/popup.css** - Popup styles (Chrome)
+- **public/manifest.json** - Chrome extension manifest (auto-generated from whitelist)
+- **public-firefox/** - Firefox-specific static assets and manifest
+- **tools/generate-manifest.js** - Build script that syncs whitelist to manifests and popup.js
 
 ### Data Flow
 
@@ -46,16 +48,18 @@ Shows button → user clicks → sends to Mealie via background.js
 1. **generate-manifest.js** runs first:
    - Parses `src/whitelist.js` to extract sites
    - Sorts sites alphabetically
-   - Updates `public/manifest.json` host_permissions and content_scripts
+   - Updates `public/manifest.json` (Chrome) and `public-firefox/manifest.json` (Firefox)
    - Updates `src/popup.js` DEFAULT_WHITELIST constant
 
 2. **Webpack** bundles:
    - `src/contentScript.js` (with whitelist imported)
-   - `src/background.js`
+   - `src/background.js` (with browser polyfill)
    - `src/popup.js` (with updated DEFAULT_WHITELIST)
-   - Static assets from `public/`
+   - Static assets from `public/` (Chrome) or `public-firefox/` (Firefox)
 
-3. **Output**: `build/` directory with ready-to-load extension
+3. **Output**: 
+   - Chrome: `build/` directory
+   - Firefox: `build-firefox/` directory
 
 ## Setup & Installation
 
@@ -68,16 +72,35 @@ cd send2mealie
 npm install
 
 # Development build (with watch mode)
-npm run watch
+npm run watch           # Chrome
+npm run watch:firefox   # Firefox
 
 # Production build
-npm run build
+npm run build           # Chrome only
+npm run build:firefox   # Firefox only
+npm run build:all       # Both browsers
 
 # Load in Chrome
 # 1. Go to chrome://extensions/
 # 2. Enable "Developer mode"
 # 3. Click "Load unpacked"
 # 4. Select the build/ directory
+
+# Load in Firefox
+# 1. Go to about:debugging#/runtime/this-firefox
+# 2. Click "Load Temporary Add-on"
+# 3. Select any file in the build-firefox/ directory
+```
+
+## Building for Distribution
+
+```bash
+# Build both Chrome and Firefox packages
+./tools/mkbuild.sh all
+
+# Or build individually
+./tools/mkbuild.sh chrome   # Creates dist/send2mealie-chrome-X.Y.Z.zip
+./tools/mkbuild.sh firefox  # Creates dist/send2mealie-firefox-X.Y.Z.xpi
 ```
 
 ## Adding Sites to Whitelist
@@ -106,7 +129,7 @@ export const DEFAULT_WHITELIST = [
 ## Testing
 
 ### Manual Testing
-1. Load extension in Chrome (see Setup section)
+1. Load extension in browser (see Setup section)
 2. Configure Mealie URL and API token in popup
 3. Visit a recipe site (e.g., allrecipes.com)
 4. Verify "Send to Mealie" button appears
@@ -118,6 +141,7 @@ export const DEFAULT_WHITELIST = [
 - Duplicate detection (if enabled)
 - Recipe page validation
 - Error handling
+- Cross-browser compatibility (Chrome & Firefox)
 
 ## Key Features & Implementation
 
@@ -157,10 +181,11 @@ export const DEFAULT_WHITELIST = [
 ## Security & Privacy
 
 - **No data collection:** Extension only accesses configured Mealie server and whitelisted sites
-- **Credentials:** Stored in Chrome's encrypted sync storage
+- **Credentials:** Stored in browser's encrypted sync storage
 - **Errors:** Redacted in console (no sensitive details logged)
 - **URLs:** Only sent to Mealie server and whitelisted recipe sites
 - **Permissions:** Minimal permissions; optional host_permissions for user sites
+- **Cross-browser:** Same security model on both Chrome and Firefox
 
 See [PRIVACY.md](./PRIVACY.md) for full privacy policy.
 
@@ -177,9 +202,17 @@ See [PRIVACY.md](./PRIVACY.md) for full privacy policy.
 Uncomment console statements in background.js and contentScript.js (note: redacted error messages per privacy policy)
 
 ### Check Extension Status
+
+**Chrome:**
 1. Go to `chrome://extensions/`
 2. Find "Send2Mealie"
 3. Click "Details" → "Service Worker" to view background.js console
+4. Right-click on page → "Inspect" → "Console" for contentScript logs
+
+**Firefox:**
+1. Go to `about:debugging#/runtime/this-firefox`
+2. Find "Send2Mealie"
+3. Click "Inspect" to view background.js console
 4. Right-click on page → "Inspect" → "Console" for contentScript logs
 
 ### Common Issues
@@ -221,5 +254,7 @@ Uncomment console statements in background.js and contentScript.js (note: redact
 ## References
 
 - [Chrome Extensions API](https://developer.chrome.com/docs/extensions/)
-- [Manifest v3 Guide](https://developer.chrome.com/docs/extensions/mv3/)
+- [Chrome Manifest v3 Guide](https://developer.chrome.com/docs/extensions/mv3/)
+- [Firefox Extensions API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions)
+- [Firefox Manifest v2 Guide](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
 - [Mealie API](https://docs.mealie.io/api/)

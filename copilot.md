@@ -6,7 +6,7 @@
 - Work follows established patterns and best practices
 
 ## Project Goal
-Create a Chrome extension that adds a "Send to Mealie" button to recipe websites, allowing users to save recipes to their personal Mealie instance.
+Create a browser extension (Chrome & Firefox) that adds a "Send to Mealie" button to recipe websites, allowing users to save recipes to their personal Mealie instance.
 
 ## Architecture Overview
 
@@ -14,17 +14,25 @@ Create a Chrome extension that adds a "Send to Mealie" button to recipe websites
 src/
 ├── whitelist.js          # Single source of truth for supported sites (auto-sorted)
 ├── contentScript.js      # Injects button on recipe pages, detects recipes
-├── background.js         # Service worker, handles API calls & message routing
+├── background.js         # Service worker/background script, handles API calls & message routing
+├── browser-polyfill.js   # Browser API compatibility layer (Chrome MV3 / Firefox MV2)
 └── popup.js              # Extension popup UI for settings & site management
 
-public/
-├── manifest.json         # Generated from whitelist (auto-updated during build)
+public/                   # Chrome-specific assets
+├── manifest.json         # Chrome manifest (MV3, auto-updated during build)
 ├── popup.html            # Popup markup
 ├── popup.css             # Popup styles (all external CSS)
 └── icons/                # Extension icons
 
+public-firefox/           # Firefox-specific assets
+├── manifest.json         # Firefox manifest (MV2, auto-updated during build)
+├── popup.html            # Popup markup
+├── popup.css             # Popup styles
+└── icons/                # Extension icons
+
 tools/
-└── generate-manifest.js  # Build script that syncs whitelist → manifest & popup.js
+├── generate-manifest.js  # Build script that syncs whitelist → manifests & popup.js
+└── mkbuild.sh            # Creates distribution packages for Chrome and Firefox
 ```
 
 ## Key Implementation Details
@@ -32,9 +40,15 @@ tools/
 ### Whitelist Management
 - Single source of truth: `src/whitelist.js`
 - Build script auto-generates:
-  - `public/manifest.json` (host_permissions & content_scripts.matches)
+  - `public/manifest.json` (Chrome: host_permissions & content_scripts.matches)
+  - `public-firefox/manifest.json` (Firefox: permissions & content_scripts.matches)
   - `src/popup.js` (DEFAULT_WHITELIST, sorted alphabetically)
-- All three stay perfectly in sync
+- All stay perfectly in sync
+
+### Browser Compatibility
+- **Chrome**: Manifest V3, service worker, `chrome.action` API
+- **Firefox**: Manifest V2, background script, `chrome.browserAction` API
+- **Polyfill**: `src/browser-polyfill.js` provides unified API
 
 ### Button Injection
 - **Default sites**: Manifest content_scripts auto-inject on page load
@@ -54,20 +68,26 @@ tools/
 ## Build Process
 
 ```bash
-npm run build    # or npm run watch
+npm run build           # Chrome only → build/
+npm run build:firefox   # Firefox only → build-firefox/
+npm run build:all       # Both browsers
 
-# Step 1: node tools/generate-manifest.js
+# Or use the mkbuild.sh script for distribution packages:
+./tools/mkbuild.sh all     # Creates dist/*.zip and dist/*.xpi
+
+# Step 1: node tools/generate-manifest.js [chrome|firefox|all]
 #   - Parse src/whitelist.js
 #   - Sort sites alphabetically
-#   - Update public/manifest.json
+#   - Update public/manifest.json (Chrome MV3)
+#   - Update public-firefox/manifest.json (Firefox MV2)
 #   - Update src/popup.js DEFAULT_WHITELIST
 
 # Step 2: webpack bundles everything
-#   - background.js
+#   - background.js (with browser polyfill)
 #   - contentScript.js (with whitelist imported)
 #   - popup.js (with updated DEFAULT_WHITELIST)
-#   - Static assets from public/
-#   - Output → build/
+#   - Static assets from public/ or public-firefox/
+#   - Output → build/ or build-firefox/
 ```
 
 ## Adding New Recipe Sites
@@ -81,7 +101,7 @@ The build script handles all the syncing automatically.
 
 ## Data Storage
 
-- **Chrome sync storage:**
+- **Browser sync storage:**
   - `mealieUrl` - User's Mealie server URL
   - `mealieApiToken` - User's API token
   - `enableDuplicateCheck` - Duplicate detection preference
@@ -95,14 +115,15 @@ The build script handles all the syncing automatically.
 - `POST /api/recipes/create/url` - Send recipe URL to Mealie
 - `POST /api/recipes/test-scrape-url` - Validate if URL is a recipe
 - `GET /api/recipes?queryFilter=orgURL="..."` - Check for duplicate
-- `GET /api/app/about` - Test connection (credentials validation)
+- `GET /api/users/self` - Test connection (credentials validation)
 
 ## Security & Privacy
 
 - No analytics, tracking, or data collection
 - Only communicates with Mealie server and whitelisted recipe sites
 - Error messages redacted (no sensitive data in console)
-- All credentials encrypted in Chrome storage
+- All credentials encrypted in browser storage
+- Same security model on both Chrome and Firefox
 - See PRIVACY.md and README.md for details
 
 ## Common Tasks
@@ -125,8 +146,8 @@ The build script handles all the syncing automatically.
 
 ## Debugging Checklist
 
-- [ ] Extension loads without errors (chrome://extensions)
-- [ ] Service Worker shows no errors
+- [ ] Extension loads without errors (chrome://extensions or about:debugging)
+- [ ] Service Worker/Background Script shows no errors
 - [ ] Mealie URL uses HTTPS
 - [ ] API token is valid
 - [ ] Site domain is in whitelist or userSites
@@ -142,4 +163,3 @@ The build script handles all the syncing automatically.
 - Custom sites list shows max 4 items before scrolling
 
 See DEVELOPMENT.md for comprehensive developer documentation.
-

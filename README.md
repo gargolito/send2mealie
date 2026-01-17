@@ -1,9 +1,9 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
 
-# Send2Mealie (1.5.6)
+# Send2Mealie (1.6.1)
 **Send recipes from the web directly to your [Mealie](https://github.com/mealie-recipes/mealie) instance.**
 
-Send2Mealie is a Chrome extension that adds a “Send to Mealie” button to Mealie supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
+Send2Mealie is a browser extension for Chrome and Firefox that adds a “Send to Mealie” button to Mealie supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
 
 Built for self-hosters who want explicit control, minimal permissions, and predictable behavior.
 
@@ -17,7 +17,7 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
     Works out of the box on popular recipe sites including AllRecipes, Food Network, BBC Good Food, NYT Cooking, and more.
 
 -   **User-added custom sites**
-    Add additional recipe websites using Chrome’s optional host permissions. Access is granted only after explicit user approval.
+    Add additional recipe websites using the browser’s optional host permissions. Access is granted only after explicit user approval, and custom permissions are restricted to HTTPS origins for parity across stores.
 
 -   **Recipe state detection**
     Automatically indicates when a recipe has already been saved to your Mealie instance (“Mealied!”).
@@ -26,10 +26,13 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
     Optional warning before importing recipes that already exist in Mealie.
 
 -   **Secure configuration storage**
-    Mealie server URL and API token are stored using Chrome’s encrypted sync storage.
+    Mealie server URL and API token are stored using the browser’s encrypted sync storage.
 
 -   **Immediate settings persistence**
     Configuration changes are saved automatically.
+
+-   **Action-scoped notifications**
+    Browser notifications are displayed only after you explicitly send a recipe, providing success or failure confirmation without background alerts.
 
 -   **Security-focused design**
     Strict URL validation, redacted error messages, minimal permissions, and no background scraping outside approved sites.
@@ -41,21 +44,26 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
 
 ### From Source (Development)
 
-bash
+```bash
+git clone https://github.com/gargolito/send2mealie.git
+cd send2mealie
+npm install
+npm run build      # Chrome build → build/
+npm run build:firefox  # Firefox build → build-firefox/
+```
 
-Copy code
+#### Load in Chrome
 
-`git clone https://github.com/gargolito/send2mealie.git cd send2mealie npm install npm run build`
+1. Open `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `build/` directory
 
-Load the extension in Chrome:
+#### Load in Firefox
 
-1.  Open `chrome://extensions/`
-
-2.  Enable **Developer mode**
-
-3.  Click **Load unpacked**
-
-4.  Select the `build/` directory
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on**
+3. Select `build-firefox/manifest.json`
 
 
 * * *
@@ -111,7 +119,7 @@ Default mealie supported sites include:
 -   The Spruce Eats
 
 
-Additional sites can be added via the popup using explicit Chrome permission prompts.
+Additional sites can be added via the popup using explicit browser permission prompts.
 
 * * *
 
@@ -129,7 +137,7 @@ Send2Mealie is designed to minimize data access:
 
     -   The user’s configured Mealie server
 
--   Credentials are stored locally using Chrome’s encrypted sync storage
+-   Credentials are stored locally using the browser’s encrypted sync storage
 
 
 See [PRIVACY.md](https://chatgpt.com/c/PRIVACY.md) for full details.
@@ -145,4 +153,3 @@ See [DEVELOPMENT.md](https://chatgpt.com/c/DEVELOPMENT.md) for architecture note
 ## License
 
 See the `LICENSE` file for details.
-
