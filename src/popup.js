@@ -25,7 +25,12 @@ async function autoSave() {
 function showDefaultSitesModal() {
   const modal = document.getElementById("modal");
   const listEl = document.getElementById("defaultSitesList");
-  listEl.innerHTML = DEFAULT_WHITELIST.map(site => `<li>${site}</li>`).join('');
+  listEl.replaceChildren();
+  DEFAULT_WHITELIST.forEach(site => {
+    const li = document.createElement('li');
+    li.textContent = site;
+    listEl.appendChild(li);
+  });
   modal.classList.add("active");
 }
 
@@ -73,31 +78,40 @@ async function renderSitesList() {
   const userSites = result.userSites || [];
   const listEl = document.getElementById("sitesList");
 
+  listEl.replaceChildren();
+
   if (userSites.length === 0) {
-    listEl.innerHTML = '<div style="padding: 8px; color: #999; text-align: center;">No custom sites added</div>';
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.cssText = 'padding: 8px; color: #999; text-align: center;';
+    emptyMsg.textContent = 'No custom sites added';
+    listEl.appendChild(emptyMsg);
     return;
   }
 
-  listEl.innerHTML = userSites.map(site => `
-    <div class="site-item">
-      <span>${site}</span>
-      <button data-site="${site}">Remove</button>
-    </div>
-  `).join('');
+  userSites.forEach(site => {
+    const div = document.createElement('div');
+    div.className = 'site-item';
 
-  listEl.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const siteToRemove = e.target.dataset.site;
+    const span = document.createElement('span');
+    span.textContent = site;
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Remove';
+    btn.addEventListener('click', async () => {
       const result = await api.storage.sync.get({ userSites: [] }) || {};
-      let userSites = result.userSites || [];
-      userSites = userSites.filter(s => s !== siteToRemove);
-      await api.storage.sync.set({ userSites });
+      let currentSites = result.userSites || [];
+      currentSites = currentSites.filter(s => s !== site);
+      await api.storage.sync.set({ userSites: currentSites });
 
-      const origin = `https://*.${siteToRemove}/*`;
+      const origin = `https://*.${site}/*`;
       api.permissions.remove({ origins: [origin] }).catch(() => {});
 
       await renderSitesList();
     });
+
+    div.appendChild(span);
+    div.appendChild(btn);
+    listEl.appendChild(div);
   });
 }
 

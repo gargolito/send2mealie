@@ -62,7 +62,7 @@ Shows button → user clicks → sends to Mealie via background.js
    - Firefox: `build-firefox/` directory
 
 ## Setup & Installation
-
+- OS: Ubuntu Linux 24.04
 ```bash
 # Clone repository
 git clone https://github.com/gargolito/send2mealie
@@ -87,9 +87,10 @@ npm run build:all       # Both browsers
 # 4. Select the build/ directory
 
 # Load in Firefox
+# 1. run tools/mkbuild.sh firefox
 # 1. Go to about:debugging#/runtime/this-firefox
 # 2. Click "Load Temporary Add-on"
-# 3. Select any file in the build-firefox/ directory
+# 3. select bundle in the dist/firefox directory
 ```
 
 ## Building for Distribution
@@ -99,11 +100,11 @@ npm run build:all       # Both browsers
 ./tools/mkbuild.sh all
 
 # Or build individually
-./tools/mkbuild.sh chrome   # Creates dist/send2mealie-chrome-X.Y.Z.zip
-./tools/mkbuild.sh firefox  # Creates dist/send2mealie-firefox-X.Y.Z.xpi
+./tools/mkbuild.sh chrome   # Creates dist/chrome/send2mealie-X.Y.Z.zip
+./tools/mkbuild.sh firefox  # Creates dist/firefox/send2mealie-X.Y.Z.zip
 ```
 
-## Adding Sites to Whitelist
+## Adding Sites to Default Whitelist
 
 To add new recipe sites:
 
@@ -127,6 +128,7 @@ export const DEFAULT_WHITELIST = [
 ```
 
 ## Testing
+Testing the extension Mealie functionality requires a working Mealie server with https and valid domain name
 
 ### Manual Testing
 1. Load extension in browser (see Setup section)

@@ -14,10 +14,10 @@ build_chrome() {
     [[ -d build ]] || exit 1
     pushd ./build > /dev/null 2>&1
     version=$(jq -r .version manifest.json)
-    pkg=${project}-chrome-${version}.zip
-    [[ -d ../dist ]] || mkdir ../dist
-    rm -f ../dist/${project}-chrome-*.zip
-    zip -9 -qr ../dist/$pkg . -x ".history"
+    pkg=${project}-${version}.zip
+    [[ -d ../dist/chrome ]] || mkdir ../dist/chrome
+    rm -f ../dist/chrome/${project}-*.zip
+    zip -9 -qr ../dist/chrome/$pkg . -x ".history"
     popd > /dev/null 2>&1
     echo "✓ Chrome build: dist/$pkg"
 }
@@ -28,10 +28,10 @@ build_firefox() {
     [[ -d build-firefox ]] || exit 1
     pushd ./build-firefox > /dev/null 2>&1
     version=$(jq -r .version manifest.json)
-    pkg=${project}-firefox-${version}.zip
-    [[ -d ../dist ]] || mkdir ../dist
-    rm -f ../dist/${project}-firefox-*.zip
-    zip -9 -qr ../dist/$pkg . -x ".history"
+    pkg=${project}-${version}.zip
+    [[ -d ../dist/firefox ]] || mkdir ../dist/firefox
+    rm -f ../dist/firefox/${project}-*.zip
+    zip -9 -qr ../dist/firefox/$pkg . -x ".history"
     popd > /dev/null 2>&1
     echo "✓ Firefox build: dist/$pkg"
 }
