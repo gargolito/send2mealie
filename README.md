@@ -1,4 +1,6 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
+* * *
+[**Chrome Webstore**](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl)
 
 # Send2Mealie (1.6.1)
 **Send recipes from the web directly to your [Mealie](https://github.com/mealie-recipes/mealie) instance.**
