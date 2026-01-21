@@ -1,6 +1,6 @@
 # <img src="public/icons/icon_512.png" width="256" align="center">
 * * *
-[**Chrome Webstore**](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl)
+[![!Chrome Webstore](https://developer.chrome.com/static/docs/webstore/branding/image/UV4C4ybeBTsZt43U4xis.png)](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl) [![Firefox Browser Addons](https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/addon/send2mealie)
 
 # Send2Mealie (1.6.1)
 **Send recipes from the web directly to your [Mealie](https://github.com/mealie-recipes/mealie) instance.**
@@ -38,7 +38,6 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
 
 -   **Security-focused design**
     Strict URL validation, redacted error messages, minimal permissions, and no background scraping outside approved sites.
-
 
 * * *
 
