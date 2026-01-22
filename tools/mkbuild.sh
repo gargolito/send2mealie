@@ -7,13 +7,14 @@ source ~/.bash_lazy_loader 2>/dev/null || true
 
 TARGET=${1:-all}
 project=${PWD##*/}
+version=$(jq -r .version manifest.json)
 
 build_chrome() {
     echo "Building Chrome extension..."
+    sed -ri "s/[\t ]*[0-9]+\.[0-9]+\.[0-9]+$/      ${version}/" public/popup.html
     node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js || exit 1
     [[ -d build ]] || exit 1
     pushd ./build > /dev/null 2>&1
-    version=$(jq -r .version manifest.json)
     pkg=${project}-${version}.zip
     [[ -d ../dist/chrome ]] || mkdir ../dist/chrome
     rm -f ../dist/chrome/${project}-*.zip
@@ -24,10 +25,10 @@ build_chrome() {
 
 build_firefox() {
     echo "Building Firefox extension..."
+    sed -ri "s/[\t ]*[0-9]+\.[0-9]+\.[0-9]+$/      ${version}/" public-firefox/popup.html
     node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js || exit 1
     [[ -d build-firefox ]] || exit 1
     pushd ./build-firefox > /dev/null 2>&1
-    version=$(jq -r .version manifest.json)
     pkg=${project}-${version}.zip
     [[ -d ../dist/firefox ]] || mkdir ../dist/firefox
     rm -f ../dist/firefox/${project}-*.zip

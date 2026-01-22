@@ -157,3 +157,13 @@ button:hover {
   width: 100%;
 }
 
+.footer {
+   position: fixed;
+   color: #d46f1a;
+   left: 0;
+   bottom: 0;
+   width: 98%;
+   font-size: .4rem;
+   text-align: right;
+}
+
