@@ -3,7 +3,7 @@
 
 # production
 /build
-/build-firefox
+/build*
 
 # misc
 .DS_Store
