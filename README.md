@@ -53,6 +53,22 @@ npm run build      # Chrome build → build/
 npm run build:firefox  # Firefox build → build-firefox/
 ```
 
+#### Cowboy Version (For Self-Hosted/Local Development)
+
+The cowboy version is intended for development installations with:
+- **HTTP** protocol (not just HTTPS)
+- **IP addresses** (e.g., `192.168.1.100:8000`)
+- **Self-signed SSL certificates**
+- **Non-standard domain names** (e.g., `mealie.local`)
+
+⚠️ **Important:** This version is **not** submitted to extension stores and is for personal/development use only.
+
+```bash
+npm run build:cowboy:chrome    # Chrome → build-cowboy/chrome/
+npm run build:cowboy:firefox   # Firefox → build-cowboy/firefox/
+npm run build:cowboy:all       # Both
+```
+
 #### Load in Chrome
 
 1. Open `chrome://extensions/`
@@ -70,17 +86,34 @@ npm run build:firefox  # Firefox build → build-firefox/
 * * *
 
 ## Configuration
-Get a token from your mealie server (http://mealie.example.com/user/profile/api-tokens)
 
-1.  Click the Send2Mealie extension icon
+### Getting Your API Token
+1. Open your Mealie server: `http://mealie.example.com` (or your server URL)
+2. Go to **Profile** → **API Tokens** (or `/user/profile/api-tokens`)
+3. Create a new token or copy an existing one
 
-2.  Enter your Mealie server URL (HTTPS required)
+### Configuring Send2Mealie
+1. Click the **Send2Mealie** extension icon
+2. Enter your Mealie server URL
+   - Standard: `https://mealie.example.com`
+   - Local/HTTP: `http://localhost:8000` or `http://192.168.1.100:8080` (cowboy version only)
+3. Paste your API token
+4. Click **Test Connection** to verify connectivity
 
-3.  Enter your Mealie API token (generated in Mealie settings)
+### Adding Custom Recipe Sites
+You can add recipe websites beyond the default 15+ sites:
 
-4.  Click **Test Connection** to verify connectivity
+1. Visit a recipe page on any website
+2. Enter the full recipe URL in the **"Add another site"** field (e.g., `https://example.com/recipe/pasta`)
+3. Click **Add Site**
+4. The extension validates that recipes can be scraped from the site
+5. If valid, your browser prompts for permission; grant it to enable the extension on that site
+6. The "Send to Mealie" button will now appear on that site's recipe pages
 
-5.  Add additional recipe sites if desired
+**Notes:**
+- Only HTTPS sites are supported (browser security requirement) — use the [Cowboy version](#cowboy-version-for-self-hostedlocal-development) for HTTP
+- You must enter a full **recipe page URL**, not just the domain
+- If scraping fails, the site cannot be added
 
 
 * * *

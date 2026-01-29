@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "Send2Mealie (Insecure/Dev)",
+  "version": "1.6.1",
+  "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages. Allows HTTP and IP addresses for Mealie server. Developer installation only.",
+  "action": {
+    "default_title": "Send to Mealie",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon_16.png",
+      "48": "icons/icon_48.png",
+      "128": "icons/icon_128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon_16.png",
+    "48": "icons/icon_48.png",
+    "128": "icons/icon_128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://*.allrecipes.com/*",
+    "https://*.bbcgoodfood.com/*",
+    "https://*.budgetbytes.com/*",
+    "https://*.cooking.nytimes.com/*",
+    "https://*.eatingwell.com/*",
+    "https://*.food.com/*",
+    "https://*.foodnetwork.com/*",
+    "https://*.sallysbakingaddiction.com/*",
+    "https://*.seriouseats.com/*",
+    "https://*.simplyrecipes.com/*",
+    "https://*.skinnytaste.com/*",
+    "https://*.tasty.co/*",
+    "https://*.tastykitchen.com/*",
+    "https://*.thepioneerwoman.com/*",
+    "https://*.thespruceeats.com/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.allrecipes.com/*",
+        "https://*.bbcgoodfood.com/*",
+        "https://*.budgetbytes.com/*",
+        "https://*.cooking.nytimes.com/*",
+        "https://*.eatingwell.com/*",
+        "https://*.food.com/*",
+        "https://*.foodnetwork.com/*",
+        "https://*.sallysbakingaddiction.com/*",
+        "https://*.seriouseats.com/*",
+        "https://*.simplyrecipes.com/*",
+        "https://*.skinnytaste.com/*",
+        "https://*.tasty.co/*",
+        "https://*.tastykitchen.com/*",
+        "https://*.thepioneerwoman.com/*",
+        "https://*.thespruceeats.com/*"
+      ],
+      "js": [
+        "contentScript.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
