@@ -1,0 +1,28 @@
+{
+  "name": "send2mealie",
+  "version": "0.1.0",
+  "description": "Send2Mealie Browser Extension",
+  "private": true,
+  "scripts": {
+    "watch": "node ./tools/generate-manifest.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.config.js",
+    "build": "node ./tools/generate-manifest.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js",
+    "watch:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.firefox.js",
+    "build:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js",
+    "build:all": "npm run build && npm run build:firefox",
+    "build:cowboy:chrome": "node ./tools/generate-manifest-cowboy.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.chrome.js",
+    "build:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.firefox.js",
+    "build:cowboy:all": "npm run build:cowboy:chrome && npm run build:cowboy:firefox",
+    "watch:cowboy:chrome": "node ./tools/generate-manifest-cowboy.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.cowboy.chrome.js",
+    "watch:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.cowboy.firefox.js"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^6.4.1",
+    "css-loader": "^6.11.0",
+    "file-loader": "^6.2.0",
+    "mini-css-extract-plugin": "^0.10.1",
+    "size-plugin": "^2.0.2",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-merge": "^5.10.0"
+  }
+}
