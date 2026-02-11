@@ -9,6 +9,10 @@
     "watch:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.firefox.js",
     "build:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js",
     "build:all": "npm run build && npm run build:firefox",
+    "dist:chrome": "node ./tools/mkbuild.js chrome",
+    "dist:firefox": "node ./tools/mkbuild.js firefox",
+    "dist:all": "node ./tools/mkbuild.js all",
+    "dist": "node ./tools/mkbuild.js all",
     "build:cowboy:chrome": "node ./tools/generate-manifest-cowboy.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.chrome.js",
     "build:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.firefox.js",
     "build:cowboy:all": "npm run build:cowboy:chrome && npm run build:cowboy:firefox",
@@ -16,6 +20,7 @@
     "watch:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.cowboy.firefox.js"
   },
   "devDependencies": {
+    "adm-zip": "^0.5.10",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^6.11.0",
     "file-loader": "^6.2.0",
