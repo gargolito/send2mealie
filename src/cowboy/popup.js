@@ -17,6 +17,19 @@ function isValidUrl(url) {
   }
 }
 
+async function requestMealieOriginPermission(mealieUrl) {
+  if (!mealieUrl) return false;
+  try {
+    const urlObj = new URL(mealieUrl);
+    const origin = `${urlObj.protocol}//${urlObj.hostname}${urlObj.port ? `:${urlObj.port}` : ''}/*`;
+    const hasPermission = await api.permissions.contains({ origins: [origin] });
+    if (hasPermission) return true;
+    return await api.permissions.request({ origins: [origin] });
+  } catch {
+    return false;
+  }
+}
+
 async function autoSave() {
   const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
   const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
@@ -108,7 +121,7 @@ async function renderSitesList() {
       await api.storage.sync.set({ userSites: currentSites });
 
       const origin = `https://*.${site}/*`;
-      api.permissions.remove({ origins: [origin] }).catch(() => {});
+      api.permissions.remove({ origins: [origin] }).catch(() => { });
 
       await renderSitesList();
     });
@@ -124,6 +137,11 @@ async function test() {
   const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
   if (!isValidUrl(mealieUrl)) {
     alert("Invalid Mealie URL. Must be HTTP or HTTPS.");
+    return;
+  }
+  const hasOriginPermission = await requestMealieOriginPermission(mealieUrl);
+  if (!hasOriginPermission) {
+    alert("Permission denied. Please allow access to your Mealie server URL.");
     return;
   }
   try {
