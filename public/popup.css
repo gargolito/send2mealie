@@ -4,23 +4,23 @@
   --bg-primary: #fbf5ef;     /* Warm cream - kitchen warmth */
   --bg-elevated: #fdfaf4;    /* Slightly lighter for elevated surfaces */
   --bg-input: #f5ede6;       /* Inset input backgrounds */
-  
+
   /* Text and Foreground */
   --text-primary: #3d2817;   /* Deep warm brown - primary text */
   --text-secondary: #6b5244; /* Warm gray-brown - supporting text */
   --text-muted: #9d8880;     /* Lighter brown - metadata, disabled */
-  
+
   /* Borders */
   --border-soft: rgba(109, 85, 73, 0.08);    /* Whisper-quiet separation */
   --border-standard: rgba(109, 85, 73, 0.15); /* Normal boundaries */
-  
+
   /* Semantic Colors */
   --color-primary: #E58325;     /* Warm orange - action and primary accents */
   --color-primary-hover: #d46f1a; /* Darkened on hover */
   --color-success: #7d9b7a;     /* Sage green - available, positive state */
   --color-danger: #c85a54;      /* Warm red - destructive actions */
   --color-danger-hover: #a94a46; /* Darkened on hover */
-  
+
   /* Spacing */
   --space-xs: 2px;
   --space-sm: 4px;
@@ -28,7 +28,7 @@
   --space-lg: 12px;
   --space-xl: 16px;
   --space-2xl: 20px;
-  
+
   /* Typography */
   --font-family: -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
   --font-size-sm: 11px;
@@ -469,6 +469,7 @@ body {
 
 /* Footer - Version info, subtle */
 .footer {
+  line-height: var(--line-height-tight);
   position: sticky;
   bottom: 0;
   color: var(--text-muted);
