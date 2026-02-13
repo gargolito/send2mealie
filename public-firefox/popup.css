@@ -1,107 +1,392 @@
-/* normalize css starts here */
+/* Design Tokens - Kitchen-inspired color world */
+:root {
+  /* Surfaces and Backgrounds */
+  --bg-primary: #fbf5ef;     /* Warm cream - kitchen warmth */
+  --bg-elevated: #fdfaf4;    /* Slightly lighter for elevated surfaces */
+  --bg-input: #f5ede6;       /* Inset input backgrounds */
+  
+  /* Text and Foreground */
+  --text-primary: #3d2817;   /* Deep warm brown - primary text */
+  --text-secondary: #6b5244; /* Warm gray-brown - supporting text */
+  --text-muted: #9d8880;     /* Lighter brown - metadata, disabled */
+  
+  /* Borders */
+  --border-soft: rgba(109, 85, 73, 0.08);    /* Whisper-quiet separation */
+  --border-standard: rgba(109, 85, 73, 0.15); /* Normal boundaries */
+  
+  /* Semantic Colors */
+  --color-primary: #E58325;     /* Warm orange - action and primary accents */
+  --color-primary-hover: #d46f1a; /* Darkened on hover */
+  --color-success: #7d9b7a;     /* Sage green - available, positive state */
+  --color-danger: #c85a54;      /* Warm red - destructive actions */
+  --color-danger-hover: #a94a46; /* Darkened on hover */
+  
+  /* Spacing */
+  --space-xs: 2px;
+  --space-sm: 4px;
+  --space-md: 8px;
+  --space-lg: 12px;
+  --space-xl: 16px;
+  --space-2xl: 20px;
+  
+  /* Typography */
+  --font-family: -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-size-sm: 11px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.5;
+}
+
+/* Reset */
 *,
 *::before,
 *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-/* normalize css ends here */
 
+/* Body - The container establishes our warm world */
 body {
-  font-family: -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
-  color: #111;
-  width: 360px;
-  max-height: 600px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  width: 400px;
+  max-height: 680px;
   overflow-y: auto;
-  margin: 12px;
-  background-color: #fbf5ef;
+  background-color: var(--bg-primary);
+  line-height: var(--line-height-normal);
 }
 
-label {
+/* Header */
+.header {
+  padding: var(--space-xl) var(--space-xl) var(--space-md);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-elevated);
+}
+
+.header h1 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Sections - Clear semantic grouping */
+.section {
+  padding: var(--space-xl);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.section-setup {
+  background: var(--bg-elevated);
+}
+
+.section-behavior {
+  background: var(--bg-primary);
+}
+
+.section-sites {
+  background: var(--bg-elevated);
+}
+
+/* Section Title - Visual anchor for each section */
+.section-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-lg) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+/* Control groups - Consistent spacing for inputs */
+.control-group {
+  margin-bottom: var(--space-lg);
+}
+
+.control-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Labels - Clear, semantic text */
+.label {
   display: block;
-  margin: 8px 0 4px;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm) 0;
 }
 
-input[type="text"],
-input[type="password"] {
-  width: 320px;
-  padding: 8px;
+/* Hints - Supporting information */
+.hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-sm) 0;
+  line-height: var(--line-height-tight);
 }
 
-button {
-  margin-top: 6px;
-  background: #E58325;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 6px;
-  font-size: 10px;
-  cursor: pointer;
+/* Input fields - Inset appearance signals receptiveness */
+.input {
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-standard);
+  border-radius: 3px;
+  font-family: inherit;
+  transition: all 0.15s ease;
 }
 
-button:hover {
-  background: #d46f1a;
+.input:focus {
+  outline: none;
+  background-color: var(--bg-elevated);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(229, 131, 37, 0.1);
 }
 
-.row {
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Checkbox Group - Custom checkbox styling */
+.checkbox-group {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+.checkbox-group:last-child {
+  margin-bottom: 0;
+}
+
+.checkbox-label {
   display: flex;
-  gap: 8px;
   align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-size-base);
 }
 
-#sitesList {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  max-height: 130px;
+.checkbox-label input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-standard);
+  border-radius: 3px;
+  background-color: var(--bg-input);
+  cursor: pointer;
+  margin-right: var(--space-md);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M13.2 3.8L6 11l-3.2-3.2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
+
+.checkbox-label input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 131, 37, 0.15);
+}
+
+.checkbox-text {
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+/* Buttons - Contextual hierarchy */
+.btn {
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  border: none;
+  border-radius: 3px;
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 131, 37, 0.15);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  width: 100%;
+  margin-top: var(--space-md);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--border-standard);
+  padding: calc(var(--space-md) - 2px) calc(var(--space-lg) - 2px);
+  flex-shrink: 0;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(229, 131, 37, 0.05);
+}
+
+/* Sites Header - Small flex for title and info button */
+.sites-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.sites-header .section-title {
+  margin: 0;
+  flex: 1;
+}
+
+/* Add Site Group */
+.add-site-group {
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.add-site-controls {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-end;
+}
+
+.add-site-controls .input {
+  flex: 1;
+}
+
+.add-site-controls .btn-secondary {
+  margin-top: 0;
+}
+
+/* Sites List - Scrollable container */
+.sites-list-wrapper {
+  margin-top: var(--space-lg);
+}
+
+.sites-list {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-standard);
+  border-radius: 3px;
+  max-height: 140px;
   overflow-y: auto;
-  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
 }
 
+.sites-list:empty::after {
+  content: "No custom sites yet";
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Site Item - Consistent spacing and layout */
 .site-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 8px;
-  border-bottom: 1px solid #eee;
-  font-size: 13px;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-soft);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
 }
 
 .site-item:last-child {
   border-bottom: none;
 }
 
+.site-item-name {
+  flex: 1;
+  font-weight: 500;
+}
+
 .site-item button {
-  background: #dc143c;
-  color: white;
+  background: transparent;
+  color: var(--color-danger);
   border: none;
-  border-radius: 3px;
-  padding: 1px 4px;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   cursor: pointer;
+  padding: var(--space-sm) var(--space-md);
   margin: 0;
+  border-radius: 2px;
   text-transform: lowercase;
+  transition: all 0.15s ease;
+  font-weight: 500;
 }
 
 .site-item button:hover {
-  background: #b8102d;
+  background-color: rgba(200, 90, 84, 0.1);
+  color: var(--color-danger-hover);
 }
 
+/* Info Button - Small, subtle, contextual */
 .info-btn {
   background: none;
   border: none;
-  color: #E58325;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 4px;
-  font-size: 14px;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: help;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .info-btn:hover {
-  color: #d46f1a;
+  background-color: rgba(229, 131, 37, 0.1);
+  color: var(--color-primary-hover);
 }
 
+/* Tooltip - Contextual help indicator */
+.tooltip {
+  color: var(--color-primary);
+  cursor: help;
+  font-size: var(--font-size-base);
+  margin-left: var(--space-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.tooltip:hover {
+  opacity: 1;
+}
+
+/* Modal - Default supported sites */
 .modal {
   display: none;
   position: fixed;
@@ -109,67 +394,104 @@ button:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
-}
-
-.modal.active {
-  display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.modal.active {
+  display: flex;
+}
+
 .modal-content {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 400px;
-  max-height: 400px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  padding: var(--space-xl);
+  max-width: 340px;
+  max-height: 420px;
   overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-standard);
 }
 
 .modal-header {
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
 }
 
 .modal-list {
-  list-style: disc;
-  padding-left: 10px;
+  list-style: none;
+  padding: 0;
   margin: 0;
 }
 
 .modal-list li {
-  padding: 1px 0;
-  border-bottom: none;
+  padding: var(--space-md) 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  position: relative;
+  padding-left: var(--space-lg);
+}
+
+.modal-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
 }
 
 .modal-close {
-  background: #E58325;
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 4px 6px;
+  border-radius: 3px;
+  padding: var(--space-md) var(--space-lg);
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: var(--space-lg);
   width: 100%;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
+.modal-close:hover {
+  background: var(--color-primary-hover);
+}
+
+.modal-close:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 131, 37, 0.15);
+}
+
+/* Footer - Version info, subtle */
 .footer {
-   position: fixed;
-   color: #d46f1a;
-   left: 0;
-   bottom: 0;
-   width: 98%;
-   font-size: .4rem;
-   text-align: right;
+  position: sticky;
+  bottom: 0;
+  color: var(--text-muted);
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--font-size-sm);
+  text-align: right;
+  background: linear-gradient(to top, var(--bg-primary), transparent);
 }
 
-.tooltip {
-  color: #E58325;
-  cursor: help;
-  font-size: 14px;
-  margin-left: 4px;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }

@@ -76,7 +76,7 @@ async function validateAndAddSite(url, domain) {
   try {
     const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]) || {};
     const { mealieUrl, mealieApiToken } = cfg;
-    
+
     if (!mealieUrl || !mealieApiToken) {
       alert("Please configure Mealie first.");
       return;
@@ -118,11 +118,7 @@ async function renderSitesList() {
   listEl.replaceChildren();
 
   if (userSites.length === 0) {
-    const emptyMsg = document.createElement('div');
-    emptyMsg.style.cssText = 'padding: 8px; color: #999; text-align: center;';
-    emptyMsg.textContent = 'No custom sites added';
-    listEl.appendChild(emptyMsg);
-    return;
+    return; // CSS will display "No custom sites yet"
   }
 
   userSites.forEach(site => {
@@ -130,6 +126,7 @@ async function renderSitesList() {
     div.className = 'site-item';
 
     const span = document.createElement('span');
+    span.className = 'site-item-name';
     span.textContent = site;
 
     const btn = document.createElement('button');

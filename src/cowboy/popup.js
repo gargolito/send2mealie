@@ -93,7 +93,7 @@ async function validateAndAddSite(url, domain) {
   try {
     const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]) || {};
     const { mealieUrl, mealieApiToken } = cfg;
-    
+
     if (!mealieUrl || !mealieApiToken) {
       alert("Please configure Mealie first.");
       return;
