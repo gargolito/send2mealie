@@ -245,7 +245,7 @@ async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries =
 async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
   // Handle string recipe (just slug/name)
   let recipeSlug = recipe?.slug || (typeof recipe === 'string' ? recipe : null);
-  
+
   if (!recipeSlug) {
     console.error('Send2Mealie: Cannot determine recipe slug from', JSON.stringify(recipe));
     return false;

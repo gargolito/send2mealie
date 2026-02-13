@@ -76,13 +76,8 @@ async function load() {
       // Only add site if permission was actually granted
       const hasPermission = await api.permissions.contains({ origins: [origin] });
       if (hasPermission) {
-        const result = await api.storage.sync.get({ userSites: [] }) || {};
-        let userSites = result.userSites || [];
-
-        if (!userSites.includes(domain)) {
-          userSites.push(domain);
-          await api.storage.sync.set({ userSites });
-        }
+        // Test if Mealie can scrape this site before adding it
+        await validateAndAddSite(pendingSiteUrl, domain);
       }
       document.getElementById("customSiteUrl").value = "";
     } catch (err) {
@@ -92,6 +87,44 @@ async function load() {
   }
 
   renderSitesList();
+}
+
+async function validateAndAddSite(url, domain) {
+  try {
+    const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]) || {};
+    const { mealieUrl, mealieApiToken } = cfg;
+    
+    if (!mealieUrl || !mealieApiToken) {
+      alert("Please configure Mealie first.");
+      return;
+    }
+
+    // Test if Mealie can scrape this site
+    const response = await new Promise((resolve) => {
+      api.runtime.sendMessage({ type: "isRecipePage", url }, resolve);
+    });
+
+    if (response?.isRecipe) {
+      // Site is valid, add it to userSites
+      const result = await api.storage.sync.get({ userSites: [] }) || {};
+      let userSites = result.userSites || [];
+
+      if (!userSites.includes(domain)) {
+        userSites.push(domain);
+        await api.storage.sync.set({ userSites });
+        await renderSitesList();
+        alert(`✓ Site added: ${domain}\nMealie can parse this site.`);
+      } else {
+        alert(`${domain} is already added.`);
+      }
+    } else {
+      // Site cannot be scraped by Mealie
+      alert(`✗ Cannot add site: ${domain}\n\nMealie cannot parse recipes from this site. The site may not be supported.`);
+    }
+  } catch (err) {
+    console.error("Error validating site", err);
+    alert("Error validating site. Please try again.");
+  }
 }
 
 async function renderSitesList() {
@@ -184,18 +217,8 @@ function addUserSite(url) {
     // Request permission synchronously from click handler (required by Firefox)
     api.permissions.request({ origins: [origin] }).then(async (granted) => {
       if (granted) {
-        const result = await api.storage.sync.get({ userSites: [] }) || {};
-        let userSites = result.userSites || [];
-        if (!userSites.includes(domain)) {
-          userSites.push(domain);
-          await api.storage.sync.set({ userSites });
-          localStorage.removeItem("pendingSiteUrl");
-          await renderSitesList();
-          alert(`Site added: ${domain}`);
-        } else {
-          localStorage.removeItem("pendingSiteUrl");
-          alert(`${domain} is already added.`);
-        }
+        localStorage.removeItem("pendingSiteUrl");
+        await validateAndAddSite(url, domain);
       } else {
         localStorage.removeItem("pendingSiteUrl");
         alert("Permission denied.");
