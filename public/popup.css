@@ -167,3 +167,9 @@ button:hover {
    text-align: right;
 }
 
+.tooltip {
+  color: #E58325;
+  cursor: help;
+  font-size: 14px;
+  margin-left: 4px;
+}

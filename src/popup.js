@@ -17,9 +17,11 @@ async function autoSave() {
   const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
   const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
   const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
+  const openEditMode = document.getElementById("openEditMode").checked;
+  const enableParse = document.getElementById("enableParse").checked;
 
   const sanitizedUrl = mealieUrl && isValidUrl(mealieUrl) ? mealieUrl : "";
-  await api.storage.sync.set({ mealieUrl: sanitizedUrl, mealieApiToken, enableDuplicateCheck });
+  await api.storage.sync.set({ mealieUrl: sanitizedUrl, mealieApiToken, enableDuplicateCheck, openEditMode, enableParse });
 }
 
 function showDefaultSitesModal() {
@@ -40,10 +42,12 @@ function closeModal() {
 }
 
 async function load() {
-  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck"]) || {};
+  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck", "openEditMode", "enableParse"]) || {};
   document.getElementById("mealieUrl").value = cfg.mealieUrl || "";
   document.getElementById("mealieApiToken").value = cfg.mealieApiToken || "";
   document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
+  document.getElementById("openEditMode").checked = cfg.openEditMode || false;
+  document.getElementById("enableParse").checked = cfg.enableParse || false;
 
   const pendingSiteUrl = localStorage.getItem("pendingSiteUrl");
   if (pendingSiteUrl) {
@@ -184,6 +188,8 @@ function addUserSite(url) {
 document.getElementById("mealieUrl").addEventListener("input", autoSave);
 document.getElementById("mealieApiToken").addEventListener("input", autoSave);
 document.getElementById("enableDuplicateCheck").addEventListener("change", autoSave);
+document.getElementById("openEditMode").addEventListener("change", autoSave);
+document.getElementById("enableParse").addEventListener("change", autoSave);
 
 document.getElementById("testBtn").addEventListener("click", test);
 document.getElementById("addSiteBtn").addEventListener("click", () => {

@@ -32,7 +32,7 @@ public-firefox/           # Firefox-specific assets
 
 tools/
 ├── generate-manifest.js  # Build script that syncs whitelist → manifests & popup.js
-└── mkbuild.sh            # Creates distribution packages for Chrome and Firefox
+└── mkbuild.js            # Creates distribution packages for Chrome and Firefox
 ```
 
 ## Key Implementation Details
@@ -72,8 +72,8 @@ npm run build           # Chrome only → build/
 npm run build:firefox   # Firefox only → build-firefox/
 npm run build:all       # Both browsers
 
-# Or use the mkbuild.sh script for distribution packages:
-./tools/mkbuild.sh all     # Creates dist/*.zip and dist/*.xpi
+# Or use npm scripts for distribution packages:
+npm run dist:all           # Creates dist/chrome/send2mealie-X.Y.Z.zip and dist/firefox/send2mealie-X.Y.Z.zip
 
 # Step 1: node tools/generate-manifest.js [chrome|firefox|all]
 #   - Parse src/whitelist.js

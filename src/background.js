@@ -54,7 +54,7 @@ async function isRecipePage(url, mealieUrl, mealieApiToken) {
     if (!resp.ok) return false;
 
     const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
-    return contentLength > 500;
+    return contentLength > 100;
   } catch (e) {
     return false;
   }
@@ -111,12 +111,19 @@ api.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 // Handle action/browserAction click - use appropriate API based on browser
 if (actionAPI?.onClicked) {
   actionAPI.onClicked.addListener((tab) => {
-    api.storage.sync.get(["mealieUrl", "mealieApiToken"]).then((cfg) => {
+    api.storage.sync.get(["mealieUrl", "mealieApiToken", "openEditMode", "enableParse"]).then(async (cfg) => {
       if (!cfg.mealieUrl || !cfg.mealieApiToken) {
         openPopup();
         return;
       }
-      createRecipeViaApi(tab.url, cfg.mealieUrl, cfg.mealieApiToken);
+      try {
+        const recipe = await createRecipeViaApi(tab.url, cfg.mealieUrl, cfg.mealieApiToken);
+        if (cfg.openEditMode && recipe) {
+          await openRecipeEditPage(recipe, cfg.mealieUrl, cfg.mealieApiToken, cfg.enableParse);
+        }
+      } catch (e) {
+        // Error already handled in createRecipeViaApi
+      }
     });
   });
 }
@@ -164,14 +171,43 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiToken) {
       body: JSON.stringify({ url })
     });
     if (!resp.ok) throw new Error('Failed to send recipe');
-    await resp.json();
+    const recipe = await resp.json();
     // Displays a confirmation notification after an explicit user action.
     // Notifications are not used for advertising or background alerts.
     api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Recipe URL submitted." });
+    return recipe;
   } catch (e) {
     api.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icon-128.png", message: "Failed to send recipe" });
+    throw e;
   }
 }
+
+async function getGroupSlug(mealieUrl, mealieApiToken) {
+  try {
+    const resp = await fetch(`${mealieUrl}/api/groups/self`, {
+      headers: { Authorization: `Bearer ${mealieApiToken}` }
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.slug;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
+  const groupSlug = await getGroupSlug(mealieUrl, mealieApiToken);
+  if (!groupSlug || !recipe?.slug) return;
+  
+  const params = new URLSearchParams({ edit: 'true' });
+  if (enableParse) {
+    params.append('parse', 'true');
+  }
+  
+  const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipe.slug}?${params.toString()}`;
+  api.tabs.create({ url: editUrl });
+}
+
 
 // Handles messages from content scripts related to recipe detection,
 // duplicate checking, and explicit user-initiated imports.
@@ -181,14 +217,17 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // This operation is not performed automatically.
   if (msg?.type === "createViaApi" && msg.url) {
     (async () => {
-      const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck"]);
-      const { mealieUrl, mealieApiToken, enableDuplicateCheck } = cfg;
+      const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck", "openEditMode", "enableParse"]);
+      const { mealieUrl, mealieApiToken, enableDuplicateCheck, openEditMode, enableParse } = cfg;
       if (!mealieUrl || !mealieApiToken) { openPopup(); sendResponse({ success: false }); return; }
       try {
         if (enableDuplicateCheck) {
           const existing = await checkDuplicate(msg.url, mealieUrl, mealieApiToken);
           if (existing) {
             sendResponse({ success: false, error: "Recipe already imported", duplicate: true, recipe: existing });
+            if (openEditMode) {
+              await openRecipeEditPage(existing, mealieUrl, mealieApiToken, enableParse);
+            }
             return;
           }
         }
@@ -202,8 +241,11 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           body: JSON.stringify({ url: msg.url })
         });
         if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-        await resp.json();
+        const recipe = await resp.json();
         sendResponse({ success: true });
+        if (openEditMode) {
+          await openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse);
+        }
       } catch (e) {
         sendResponse({ success: false, error: "Failed to send recipe" });
       }

@@ -29,8 +29,8 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
   // Handles explicit user action to send the current recipe URL to Mealie.
   // Recipe import is never performed automatically.
   btn.addEventListener("click", async () => {
-    const data = await api.storage.sync.get(["mealieUrl", "mealieApiToken"]) || {};
-    const { mealieUrl, mealieApiToken } = data;
+    const data = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "openEditMode"]) || {};
+    const { mealieUrl, mealieApiToken, openEditMode } = data;
     if (!mealieUrl || !mealieApiToken) {
       api.runtime.sendMessage({ type: "openPopup" });
       return;
@@ -44,14 +44,22 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
       btn.style.pointerEvents = "auto";
       if (response?.success) {
         btn.style.background = "#E58325";
-        btn.textContent = "Mealied!";
-        btn.disabled = true;
-        btn.style.cursor = "default";
-        btn.style.pointerEvents = "none";
+        if (openEditMode) {
+          btn.textContent = "Opening editor...";
+        } else {
+          btn.textContent = "Mealied!";
+          btn.disabled = true;
+          btn.style.cursor = "default";
+          btn.style.pointerEvents = "none";
+        }
       } else if (response?.duplicate) {
         btn.style.background = "#2098eeff";
-        btn.textContent = "Already saved ✓";
-        setTimeout(() => (btn.textContent = "Send to Mealie"), 3000);
+        if (openEditMode) {
+          btn.textContent = "Opening editor...";
+        } else {
+          btn.textContent = "Already saved ✓";
+          setTimeout(() => (btn.textContent = "Send to Mealie"), 3000);
+        }
       } else {
         // Errors are intentionally generic to avoid exposing sensitive details.
         btn.textContent = "Error";

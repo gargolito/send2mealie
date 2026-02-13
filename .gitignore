@@ -11,3 +11,7 @@
 npm-debug.log*
 quickstart.md
 !package*json
+
+# IDE history and state
+.drift/
+.history/

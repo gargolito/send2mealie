@@ -87,7 +87,7 @@ npm run build:all       # Both browsers
 # 4. Select the build/ directory
 
 # Load in Firefox
-# 1. run tools/mkbuild.sh firefox
+# 1. npm run dist:firefox
 # 1. Go to about:debugging#/runtime/this-firefox
 # 2. Click "Load Temporary Add-on"
 # 3. select bundle in the dist/firefox directory
@@ -97,11 +97,11 @@ npm run build:all       # Both browsers
 
 ```bash
 # Build both Chrome and Firefox packages
-./tools/mkbuild.sh all
+npm run dist:all
 
 # Or build individually
-./tools/mkbuild.sh chrome   # Creates dist/chrome/send2mealie-X.Y.Z.zip
-./tools/mkbuild.sh firefox  # Creates dist/firefox/send2mealie-X.Y.Z.zip
+npm run dist:chrome   # Creates dist/chrome/send2mealie-X.Y.Z.zip
+npm run dist:firefox  # Creates dist/firefox/send2mealie-X.Y.Z.zip
 ```
 
 ## Adding Sites to Default Whitelist
