@@ -195,6 +195,41 @@ async function getGroupSlug(mealieUrl, mealieApiToken) {
   }
 }
 
+async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries = 10) {
+  // If slug is already available, return recipe immediately
+  if (recipe?.slug) {
+    return recipe;
+  }
+
+  // If recipe has an ID, try to fetch it with retries
+  if (!recipe?.id) {
+    console.error('Send2Mealie: Recipe has no ID or slug', recipe);
+    return recipe;
+  }
+
+  // Wait and retry to get the recipe slug
+  for (let i = 0; i < maxRetries; i++) {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms between retries
+    try {
+      const resp = await fetch(`${mealieUrl}/api/recipes/${recipe.id}`, {
+        headers: { Authorization: `Bearer ${mealieApiToken}` }
+      });
+      if (resp.ok) {
+        const updatedRecipe = await resp.json();
+        if (updatedRecipe?.slug) {
+          console.log('Send2Mealie: Recipe slug ready after', (i + 1) * 500, 'ms');
+          return updatedRecipe;
+        }
+      }
+    } catch (e) {
+      console.error('Send2Mealie: Error fetching recipe details on retry', i + 1, e);
+    }
+  }
+
+  console.warn('Send2Mealie: Recipe slug not available after retries', recipe);
+  return recipe;
+}
+
 async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
   if (!recipe?.slug) {
     console.error('Send2Mealie: Recipe slug is missing', recipe);
@@ -239,7 +274,9 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           if (existing) {
             sendResponse({ success: false, error: "Recipe already imported", duplicate: true, recipe: existing });
             if (openEditMode) {
-              await openRecipeEditPage(existing, mealieUrl, mealieApiToken, enableParse);
+              // Wait for recipe to be fully processed before opening edit page
+              const updatedRecipe = await waitForRecipeSlug(existing, mealieUrl, mealieApiToken);
+              await openRecipeEditPage(updatedRecipe, mealieUrl, mealieApiToken, enableParse);
             }
             return;
           }
@@ -254,9 +291,10 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           body: JSON.stringify({ url: msg.url })
         });
         if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-        const recipe = await resp.json();
+        let recipe = await resp.json();
         if (openEditMode) {
-          // Open the edit page before sending response, but send response immediately
+          // Wait for recipe to be fully processed before opening edit page
+          recipe = await waitForRecipeSlug(recipe, mealieUrl, mealieApiToken);
           openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse).catch(e => {
             console.error('Send2Mealie: Failed to open edit page after recipe creation', e);
           });
