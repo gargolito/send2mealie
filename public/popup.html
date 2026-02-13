@@ -31,24 +31,22 @@
     <h2 class="section-title">Import Behavior</h2>
     <div class="checkbox-group">
       <label class="checkbox-label">
-        <input type="checkbox" id="enableDuplicateCheck" checked>
-        <span class="checkbox-text">Check for duplicates before sending</span>
+      <input type="checkbox" id="enableDuplicateCheck" checked>
+      <span class="checkbox-text">Check for duplicates before sending</span>
       </label>
       <p class="hint">Warns if the recipe already exists in your Mealie</p>
-    </div>
-    <div class="checkbox-group">
+
       <label class="checkbox-label">
-        <input type="checkbox" id="openEditMode">
-        <span class="checkbox-text">Open recipe in edit mode</span>
-        <span class="tooltip" title="Automatically opens the recipe editor after importing, allowing you to make corrections immediately">ⓘ</span>
+      <input type="checkbox" id="openEditMode">
+      <span class="checkbox-text">Open recipe in edit mode</span>
       </label>
-    </div>
-    <div class="checkbox-group">
+      <p class="hint">Automatically opens the recipe editor after importing.</p>
+
       <label class="checkbox-label">
-        <input type="checkbox" id="enableParse">
-        <span class="checkbox-text">Enable parse mode</span>
-        <span class="tooltip" title="Attempts to re-parse recipe data when opening in edit mode">ⓘ</span>
+      <input type="checkbox" id="enableParse">
+      <span class="checkbox-text">Enable parse mode</span>
       </label>
+      <p class="hint">Tells Mealie to parse the new recipe before editing.</p>
     </div>
   </section>
 
@@ -58,7 +56,7 @@
       <h2 class="section-title">Recipe Sites</h2>
       <button class="info-btn" id="infoBtn" title="View default supported sites">*</button>
     </div>
-    
+
     <!-- Add Site -->
     <div class="add-site-group">
       <label for="customSiteUrl" class="label">Add Custom Site</label>
@@ -82,7 +80,7 @@
     </div>
   </div>
   <div class="footer">
-      1.6.1
+      1.7.0
   </div>
   <script src="popup.js"></script>
 </body>

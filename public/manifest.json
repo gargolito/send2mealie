@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Send2Mealie",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages.",
   "action": {
     "default_title": "Send to Mealie",
