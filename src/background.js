@@ -196,16 +196,30 @@ async function getGroupSlug(mealieUrl, mealieApiToken) {
 }
 
 async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
-  const groupSlug = await getGroupSlug(mealieUrl, mealieApiToken);
-  if (!groupSlug || !recipe?.slug) return;
-  
-  const params = new URLSearchParams({ edit: 'true' });
-  if (enableParse) {
-    params.append('parse', 'true');
+  if (!recipe?.slug) {
+    console.error('Send2Mealie: Recipe slug is missing', recipe);
+    return false;
   }
-  
-  const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipe.slug}?${params.toString()}`;
-  api.tabs.create({ url: editUrl });
+
+  try {
+    const groupSlug = await getGroupSlug(mealieUrl, mealieApiToken);
+    if (!groupSlug) {
+      console.error('Send2Mealie: Failed to fetch group slug');
+      return false;
+    }
+
+    const params = new URLSearchParams({ edit: 'true' });
+    if (enableParse) {
+      params.append('parse', 'true');
+    }
+
+    const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipe.slug}?${params.toString()}`;
+    await api.tabs.create({ url: editUrl });
+    return true;
+  } catch (e) {
+    console.error('Send2Mealie: Error opening recipe edit page', e);
+    return false;
+  }
 }
 
 
@@ -242,11 +256,15 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         });
         if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
         const recipe = await resp.json();
-        sendResponse({ success: true });
         if (openEditMode) {
-          await openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse);
+          // Open the edit page before sending response, but send response immediately
+          openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse).catch(e => {
+            console.error('Send2Mealie: Failed to open edit page after recipe creation', e);
+          });
         }
+        sendResponse({ success: true });
       } catch (e) {
+        console.error('Send2Mealie: Error in createViaApi', e);
         sendResponse({ success: false, error: "Failed to send recipe" });
       }
     })();

@@ -3,11 +3,11 @@
 # Usage: ./mkbuild.sh [chrome|firefox|all]
 # Default: all
 
-source ~/.bash_lazy_loader 2>/dev/null || true
-
+set -e
+#source ~/.bash_lazy_loader 2>/dev/null || true
 TARGET=${1:-all}
 project=${PWD##*/}
-version=$(jq -r .version manifest.json)
+version=$(jq -r .version ${PWD}/public/manifest.json)
 
 build_chrome() {
     echo "Building Chrome extension..."

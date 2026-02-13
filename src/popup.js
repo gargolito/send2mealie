@@ -108,7 +108,7 @@ async function renderSitesList() {
       await api.storage.sync.set({ userSites: currentSites });
 
       const origin = `https://*.${site}/*`;
-      api.permissions.remove({ origins: [origin] }).catch(() => {});
+      api.permissions.remove({ origins: [origin] }).catch(() => { });
 
       await renderSitesList();
     });
