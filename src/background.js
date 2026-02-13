@@ -196,14 +196,26 @@ async function getGroupSlug(mealieUrl, mealieApiToken) {
 }
 
 async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries = 10) {
+  // Handle case where recipe is just a string (name/slug)
+  if (typeof recipe === 'string') {
+    console.warn('Send2Mealie: Recipe response is a string, not an object:', recipe);
+    // Try to fetch recipe by searching or just return early
+    return { slug: recipe };
+  }
+
   // If slug is already available, return recipe immediately
   if (recipe?.slug) {
+    console.log('Send2Mealie: Recipe slug already available:', recipe.slug);
     return recipe;
   }
 
   // If recipe has an ID, try to fetch it with retries
   if (!recipe?.id) {
-    console.error('Send2Mealie: Recipe has no ID or slug', recipe);
+    console.error('Send2Mealie: Recipe has no ID or slug', JSON.stringify(recipe));
+    // If no ID, assume response contains the slug and return
+    if (recipe?.name) {
+      return { slug: recipe.name };
+    }
     return recipe;
   }
 
@@ -217,7 +229,7 @@ async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries =
       if (resp.ok) {
         const updatedRecipe = await resp.json();
         if (updatedRecipe?.slug) {
-          console.log('Send2Mealie: Recipe slug ready after', (i + 1) * 500, 'ms');
+          console.log('Send2Mealie: Recipe slug ready after', (i + 1) * 500, 'ms:', updatedRecipe.slug);
           return updatedRecipe;
         }
       }
@@ -226,13 +238,16 @@ async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries =
     }
   }
 
-  console.warn('Send2Mealie: Recipe slug not available after retries', recipe);
+  console.warn('Send2Mealie: Recipe slug not available after retries', JSON.stringify(recipe));
   return recipe;
 }
 
 async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
-  if (!recipe?.slug) {
-    console.error('Send2Mealie: Recipe slug is missing, waiting for recipe to be processed', recipe);
+  // Handle string recipe (just slug/name)
+  let recipeSlug = recipe?.slug || (typeof recipe === 'string' ? recipe : null);
+  
+  if (!recipeSlug) {
+    console.error('Send2Mealie: Cannot determine recipe slug from', JSON.stringify(recipe));
     return false;
   }
 
@@ -248,7 +263,8 @@ async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse
       params.append('parse', 'true');
     }
 
-    const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipe.slug}?${params.toString()}`;
+    const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipeSlug}?${params.toString()}`;
+    console.log('Send2Mealie: Opening editor:', editUrl);
     await api.tabs.create({ url: editUrl });
     return true;
   } catch (e) {
