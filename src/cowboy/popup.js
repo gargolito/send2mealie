@@ -17,11 +17,37 @@ function isValidUrl(url) {
   }
 }
 
+function isIpOrLocalhost(hostname) {
+  if (!hostname) return false;
+  if (hostname === 'localhost') return true;
+  if (hostname.includes(':')) return true; // IPv6
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+}
+
+function getMealieOriginPattern(urlObj) {
+  return `${urlObj.protocol}//${urlObj.hostname}/*`;
+}
+
+function getSiteOriginPattern(urlObj) {
+  const domain = urlObj.hostname.replace(/^www\./, '');
+  if (isIpOrLocalhost(domain)) {
+    return `${urlObj.protocol}//${domain}/*`;
+  }
+  return `${urlObj.protocol}//*.${domain}/*`;
+}
+
+function getOriginPatternsForDomain(domain) {
+  if (isIpOrLocalhost(domain)) {
+    return [`http://${domain}/*`, `https://${domain}/*`];
+  }
+  return [`http://*.${domain}/*`, `https://*.${domain}/*`];
+}
+
 async function requestMealieOriginPermission(mealieUrl) {
   if (!mealieUrl) return false;
   try {
     const urlObj = new URL(mealieUrl);
-    const origin = `${urlObj.protocol}//${urlObj.hostname}${urlObj.port ? `:${urlObj.port}` : ''}/*`;
+    const origin = getMealieOriginPattern(urlObj);
     const hasPermission = await api.permissions.contains({ origins: [origin] });
     if (hasPermission) return true;
     return await api.permissions.request({ origins: [origin] });
@@ -71,7 +97,7 @@ async function load() {
     try {
       const urlObj = new URL(pendingSiteUrl);
       const domain = urlObj.hostname.replace(/^www\./, '');
-      const origin = `https://*.${domain}/*`;
+      const origin = getSiteOriginPattern(urlObj);
 
       // Only add site if permission was actually granted
       const hasPermission = await api.permissions.contains({ origins: [origin] });
@@ -157,8 +183,8 @@ async function renderSitesList() {
       currentSites = currentSites.filter(s => s !== site);
       await api.storage.sync.set({ userSites: currentSites });
 
-      const origin = `https://*.${site}/*`;
-      api.permissions.remove({ origins: [origin] }).catch(() => { });
+      const origins = getOriginPatternsForDomain(site);
+      api.permissions.remove({ origins }).catch(() => { });
 
       await renderSitesList();
     });
@@ -208,8 +234,7 @@ function addUserSite(url) {
   try {
     const urlObj = new URL(url);
     const domain = urlObj.hostname.replace(/^www\./, '');
-    // Custom sites are limited to HTTPS origin permissions for consistency across stores
-    const origin = `https://*.${domain}/*`;
+    const origin = getSiteOriginPattern(urlObj);
 
     // Store pending URL before requesting permission (Firefox closes popup on permission request)
     localStorage.setItem("pendingSiteUrl", url);
