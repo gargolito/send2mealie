@@ -7,10 +7,17 @@ const AdmZip = require('adm-zip');
 
 const ROOT_DIR = process.cwd();
 const TARGET = process.argv[2] || 'all';
-const VALID_TARGETS = new Set(['chrome', 'firefox', 'all']);
+const VALID_TARGETS = new Set([
+    'chrome',
+    'firefox',
+    'all',
+    'cowboy:chrome',
+    'cowboy:firefox',
+    'cowboy:all'
+]);
 
 if (!VALID_TARGETS.has(TARGET)) {
-    console.error('Usage: node tools/mkbuild.js [chrome|firefox|all]');
+    console.error('Usage: node tools/mkbuild.js [chrome|firefox|all|cowboy:chrome|cowboy:firefox|cowboy:all]');
     process.exit(1);
 }
 
@@ -32,6 +39,12 @@ function readVersion() {
     }
 
     throw new Error('Unable to determine version from manifest.json files.');
+}
+
+function updateManifestVersion(filePath, version) {
+    const manifest = readJson(filePath);
+    manifest.version = version;
+    fs.writeFileSync(filePath, JSON.stringify(manifest, null, 2) + '\n');
 }
 
 function updatePopupVersion(filePath, version) {
@@ -58,12 +71,14 @@ function ensureDir(dirPath) {
     fs.mkdirSync(dirPath, { recursive: true });
 }
 
-function removeOldZips(distDir, projectName) {
+function removeOldPackages(distDir, projectName) {
     if (!fs.existsSync(distDir)) return;
     const entries = fs.readdirSync(distDir, { withFileTypes: true });
+    const extensions = ['.zip', '.xpi'];
     entries.forEach((entry) => {
         if (!entry.isFile()) return;
-        if (!entry.name.startsWith(`${projectName}-`) || !entry.name.endsWith('.zip')) return;
+        if (!entry.name.startsWith(`${projectName}-`)) return;
+        if (!extensions.some((ext) => entry.name.endsWith(ext))) return;
         fs.unlinkSync(path.join(distDir, entry.name));
     });
 }
@@ -88,7 +103,7 @@ function createZip(sourceDir, distDir, zipName, projectName) {
     }
 
     ensureDir(distDir);
-    removeOldZips(distDir, projectName);
+    removeOldPackages(distDir, projectName);
 
     const zip = new AdmZip();
     addDirectoryToZip(zip, sourceDir, sourceDir);
@@ -127,6 +142,7 @@ function printTree(rootDir) {
 function buildChrome(version, projectName) {
     console.log('Building Chrome extension...');
     updatePopupVersion(path.join(ROOT_DIR, 'public', 'popup.html'), version);
+    updateManifestVersion(path.join(ROOT_DIR, 'public', 'manifest.json'), version);
     runWebpack('config/webpack.config.js');
 
     const output = createZip(
@@ -142,20 +158,63 @@ function buildChrome(version, projectName) {
 function buildFirefox(version, projectName) {
     console.log('Building Firefox extension...');
     updatePopupVersion(path.join(ROOT_DIR, 'public-firefox', 'popup.html'), version);
+    updateManifestVersion(path.join(ROOT_DIR, 'public-firefox', 'manifest.json'), version);
     runWebpack('config/webpack.firefox.js');
 
     const output = createZip(
         path.join(ROOT_DIR, 'build-firefox'),
         path.join(ROOT_DIR, 'dist', 'firefox'),
-        `${projectName}-${version}.zip`,
+        `${projectName}-${version}.xpi`,
         projectName
     );
 
     console.log(`✓ Firefox build: ${path.relative(ROOT_DIR, output)}`);
 }
 
+function buildCowboyChrome(version, projectName) {
+    console.log('Building Cowboy Chrome extension...');
+    updatePopupVersion(path.join(ROOT_DIR, 'cowboy', 'chrome', 'popup.html'), version);
+    updateManifestVersion(path.join(ROOT_DIR, 'cowboy', 'chrome', 'manifest.json'), version);
+    runWebpack('config/webpack.cowboy.chrome.js');
+
+    const output = createZip(
+        path.join(ROOT_DIR, 'build-cowboy', 'chrome'),
+        path.join(ROOT_DIR, 'dist', 'cowboy', 'chrome'),
+        `${projectName}-cowboy-${version}.zip`,
+        projectName
+    );
+
+    console.log(`✓ Cowboy Chrome build: ${path.relative(ROOT_DIR, output)}`);
+}
+
+function buildCowboyFirefox(version, projectName) {
+    console.log('Building Cowboy Firefox extension...');
+    updatePopupVersion(path.join(ROOT_DIR, 'cowboy', 'firefox', 'popup.html'), version);
+    updateManifestVersion(path.join(ROOT_DIR, 'cowboy', 'firefox', 'manifest.json'), version);
+    runWebpack('config/webpack.cowboy.firefox.js');
+
+    const output = createZip(
+        path.join(ROOT_DIR, 'build-cowboy', 'firefox'),
+        path.join(ROOT_DIR, 'dist', 'cowboy', 'firefox'),
+        `${projectName}-cowboy-${version}.xpi`,
+        projectName
+    );
+
+    console.log(`✓ Cowboy Firefox build: ${path.relative(ROOT_DIR, output)}`);
+}
+
 function main() {
-    runScript(['./tools/generate-manifest.js', 'all']);
+    const isStandardTarget = TARGET === 'chrome' || TARGET === 'firefox' || TARGET === 'all';
+    const isCowboyTarget = TARGET === 'cowboy:chrome' || TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all';
+
+    if (isStandardTarget) {
+        const manifestTarget = TARGET === 'all' ? 'all' : TARGET;
+        runScript(['./tools/generate-manifest.js', manifestTarget]);
+    }
+    if (isCowboyTarget) {
+        const manifestTarget = TARGET === 'cowboy:all' ? 'all' : TARGET.split(':')[1];
+        runScript(['./tools/generate-manifest-cowboy.js', manifestTarget]);
+    }
 
     const projectName = path.basename(ROOT_DIR);
     const version = readVersion();
@@ -165,6 +224,12 @@ function main() {
     }
     if (TARGET === 'firefox' || TARGET === 'all') {
         buildFirefox(version, projectName);
+    }
+    if (TARGET === 'cowboy:chrome' || TARGET === 'cowboy:all') {
+        buildCowboyChrome(version, projectName);
+    }
+    if (TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all') {
+        buildCowboyFirefox(version, projectName);
     }
 
     console.log('');

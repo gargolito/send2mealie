@@ -2,7 +2,7 @@
 * * *
 [![!Chrome Webstore](https://developer.chrome.com/static/docs/webstore/branding/image/UV4C4ybeBTsZt43U4xis.png)](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl) [![Firefox Browser Addons](https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/addon/send2mealie)
 
-# Send2Mealie (1.7.0)
+# Send2Mealie (1.7.1)
 **Send recipes from the web directly to your [Mealie](https://github.com/mealie-recipes/mealie) instance.**
 
 Send2Mealie is a browser extension for Chrome and Firefox that adds a “Send to Mealie” button to Mealie supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
@@ -51,6 +51,13 @@ cd send2mealie
 npm install
 npm run build      # Chrome build → build/
 npm run build:firefox  # Firefox build → build-firefox/
+
+# Distribution packages
+npm run dist:chrome      # Chrome zip → dist/chrome/
+npm run dist:firefox     # Firefox xpi → dist/firefox/
+npm run dist:cowboy:chrome  # Cowboy Chrome zip → dist/cowboy/chrome/
+npm run dist:cowboy:firefox # Cowboy Firefox xpi → dist/cowboy/firefox/
+npm run dist:cowboy:all     # Both cowboy packages
 ```
 
 #### Cowboy Version (For Self-Hosted/Local Development)

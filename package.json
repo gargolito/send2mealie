@@ -4,20 +4,19 @@
   "description": "Send2Mealie Browser Extension",
   "private": true,
   "scripts": {
-    "watch": "node ./tools/generate-manifest.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.config.js",
     "build": "node ./tools/generate-manifest.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js",
-    "watch:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.firefox.js",
     "build:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js",
     "build:all": "npm run build && npm run build:firefox",
     "dist:chrome": "node ./tools/mkbuild.js chrome",
     "dist:firefox": "node ./tools/mkbuild.js firefox",
     "dist:all": "node ./tools/mkbuild.js all",
+    "dist:cowboy:chrome": "node ./tools/mkbuild.js cowboy:chrome",
+    "dist:cowboy:firefox": "node ./tools/mkbuild.js cowboy:firefox",
+    "dist:cowboy:all": "node ./tools/mkbuild.js cowboy:all",
     "dist": "node ./tools/mkbuild.js all",
     "build:cowboy:chrome": "node ./tools/generate-manifest-cowboy.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.chrome.js",
     "build:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.cowboy.firefox.js",
-    "build:cowboy:all": "npm run build:cowboy:chrome && npm run build:cowboy:firefox",
-    "watch:cowboy:chrome": "node ./tools/generate-manifest-cowboy.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.cowboy.chrome.js",
-    "watch:cowboy:firefox": "node ./tools/generate-manifest-cowboy.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.cowboy.firefox.js"
+    "build:cowboy:all": "npm run build:cowboy:chrome && npm run build:cowboy:firefox"
   },
   "devDependencies": {
     "adm-zip": "^0.5.10",

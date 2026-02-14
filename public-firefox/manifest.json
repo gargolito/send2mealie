@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Send2Mealie",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages.",
   "browser_specific_settings": {
     "gecko": {

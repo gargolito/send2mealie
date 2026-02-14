@@ -29,9 +29,9 @@ build_firefox() {
     node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js || exit 1
     [[ -d build-firefox ]] || exit 1
     pushd ./build-firefox > /dev/null 2>&1
-    pkg=${project}-${version}.zip
+    pkg=${project}-${version}.xpi
     [[ -d ../dist/firefox ]] || mkdir ../dist/firefox
-    rm -f ../dist/firefox/${project}-*.zip
+    rm -f ../dist/firefox/${project}-*.xpi
     zip -9 -qr ../dist/firefox/$pkg . -x ".history"
     popd > /dev/null 2>&1
     echo "✓ Firefox build: dist/$pkg"
