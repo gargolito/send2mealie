@@ -2,34 +2,77 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Send to Mealie (Insecure/Dev)</title>
+  <title>Send to Mealie</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h3>Send to Mealie</h3>
-  <div style="font-size: 11px; color: #d93025; margin-bottom: 8px; padding: 4px; background: #fef7e0; border-radius: 4px;">
-    ⚠️ Insecure/Dev Version - Allows HTTP and IP addresses
+  <div class="header">
+    <h1>Send to Mealie</h1>
   </div>
-  <label>Mealie URL</label>
-  <input id="mealieUrl" type="text" placeholder="http://192.168.1.100:9000">
-  <label>API Token</label>
-  <input id="mealieApiToken" type="password" placeholder="••••••">
-  <div class="row">
-    <button id="testBtn">Test Connection</button>
-  </div>
-  <hr>
-  <label>
-    <input type="checkbox" id="enableDuplicateCheck" checked> Check for duplicates before sending
-  </label>
-  <hr>
-  <label>Add another site (via recipe page)</label>
-  <input id="customSiteUrl" type="text" placeholder="https://example.com/recipe_page">
-  <button id="addSiteBtn">Add Site</button>
-  <div style="font-size: 12px; color: #666; margin-top: 8px;">
-    Click "Add Site", grant permission when asked, then click on the extension again and confirm that the site is added.
-  </div>
-  <label style="margin-top: 16px;">Allowed Sites <button class="info-btn" id="infoBtn">*</button></label>
-  <div id="sitesList"></div>
+<details>
+  <summary>Setup</summary>
+  <!-- Configuration Section -->
+  <section class="section section-setup">
+    <h2 class="section-title">Server Setup</h2>
+    <div class="control-group">
+      <label for="mealieUrl" class="label">Mealie Server Address</label>
+      <p class="hint">Your Mealie instance URL (e.g., https://mealie.example.com)</p>
+      <input id="mealieUrl" class="input" type="text" placeholder="https://mealie.example.com">
+    </div>
+    <div class="control-group">
+      <label for="mealieApiToken" class="label">API Token</label>
+      <p class="hint">Get this from Profile → API Tokens on your Mealie server</p>
+      <input id="mealieApiToken" class="input" type="password" placeholder="••••••">
+    </div>
+    <button id="testBtn" class="btn btn-primary">Test Connection</button>
+  </section>
+
+  <!-- Behavior Section -->
+  <section class="section section-behavior">
+    <h2 class="section-title">Import Behavior</h2>
+    <div class="checkbox-group">
+      <label class="checkbox-label">
+      <input type="checkbox" id="enableDuplicateCheck" checked>
+      <span class="checkbox-text">Check for duplicates before sending</span>
+      </label>
+      <p class="hint">Warns if the recipe already exists in your Mealie</p>
+
+      <label class="checkbox-label">
+      <input type="checkbox" id="openEditMode">
+      <span class="checkbox-text">Open recipe in edit mode</span>
+      </label>
+      <p class="hint">Automatically opens the recipe editor after importing.</p>
+
+      <label class="checkbox-label">
+      <input type="checkbox" id="enableParse">
+      <span class="checkbox-text">Enable parse mode</span>
+      </label>
+      <p class="hint">Tells Mealie to parse the new recipe before editing.</p>
+    </div>
+  </section>
+</details>
+  <!-- Sites Section -->
+  <section class="section section-sites">
+    <div class="sites-header">
+      <h2 class="section-title">Recipe Sites</h2>
+      <button class="info-btn" id="infoBtn" title="View default supported sites">*</button>
+    </div>
+
+    <!-- Add Site -->
+    <div class="add-site-group">
+      <label for="customSiteUrl" class="label">Add Custom Site</label>
+      <p class="hint">Enter a recipe page URL to add the site to your allowed list</p>
+      <div class="add-site-controls">
+        <input id="customSiteUrl" class="input" type="text" placeholder="https://example.com/recipe/...">
+        <button id="addSiteBtn" class="btn btn-secondary">Add</button>
+      </div>
+    </div>
+
+    <!-- Sites List -->
+    <div class="sites-list-wrapper">
+      <div id="sitesList" class="sites-list"></div>
+    </div>
+  </section>
   <div id="modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">Default Supported Sites</div>
@@ -37,8 +80,8 @@
       <button class="modal-close" id="modalClose">Close</button>
     </div>
   </div>
-  <div class="footer">
-      1.6.1 (Insecure/Dev)
+  <div class="hint">
+      1.7.0
   </div>
   <script src="popup.js"></script>
 </body>
