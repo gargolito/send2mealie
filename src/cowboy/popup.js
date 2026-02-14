@@ -28,6 +28,14 @@ function getMealieOriginPattern(urlObj) {
   return `${urlObj.protocol}//${urlObj.hostname}/*`;
 }
 
+function getMealiePermissionOrigins(urlObj) {
+  const domain = urlObj.hostname.replace(/^www\./, '');
+  if (isIpOrLocalhost(domain)) {
+    return [`http://${domain}/*`, `https://${domain}/*`];
+  }
+  return [getMealieOriginPattern(urlObj)];
+}
+
 function getSiteOriginPattern(urlObj) {
   const domain = urlObj.hostname.replace(/^www\./, '');
   if (isIpOrLocalhost(domain)) {
@@ -43,14 +51,23 @@ function getOriginPatternsForDomain(domain) {
   return [`http://*.${domain}/*`, `https://*.${domain}/*`];
 }
 
+async function hasAnyOriginPermission(origins) {
+  for (const origin of origins) {
+    // permissions.contains requires all origins to be present, so check individually
+    const hasPermission = await api.permissions.contains({ origins: [origin] });
+    if (hasPermission) return true;
+  }
+  return false;
+}
+
 async function requestMealieOriginPermission(mealieUrl) {
   if (!mealieUrl) return false;
   try {
     const urlObj = new URL(mealieUrl);
-    const origin = getMealieOriginPattern(urlObj);
-    const hasPermission = await api.permissions.contains({ origins: [origin] });
+    const origins = getMealiePermissionOrigins(urlObj);
+    const hasPermission = await hasAnyOriginPermission(origins);
     if (hasPermission) return true;
-    return await api.permissions.request({ origins: [origin] });
+    return await api.permissions.request({ origins });
   } catch {
     return false;
   }
