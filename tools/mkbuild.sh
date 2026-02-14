@@ -9,9 +9,42 @@ TARGET=${1:-all}
 project=${PWD##*/}
 version=$(jq -r .version ${PWD}/public/manifest.json)
 
+update_manifest_version() {
+    local file_path=$1
+    if [[ -f "${file_path}" ]]; then
+        jq --arg version "${version}" '.version = $version' "${file_path}" > "${file_path}.tmp"
+        mv "${file_path}.tmp" "${file_path}"
+    fi
+}
+
+update_popup_version() {
+    local file_path=$1
+    if [[ -f "${file_path}" ]]; then
+        sed -ri "s/[\t ]*[0-9]+\.[0-9]+\.[0-9]+$/      ${version}/" "${file_path}"
+    fi
+}
+
+update_readme_version() {
+    if [[ -f "README.md" ]]; then
+        sed -ri "s/^# Send2Mealie \([0-9]+\.[0-9]+\.[0-9]+\)/# Send2Mealie (${version})/" README.md
+    fi
+}
+
+update_versions() {
+    update_popup_version public/popup.html
+    update_popup_version public-firefox/popup.html
+    update_popup_version cowboy/chrome/popup.html
+    update_popup_version cowboy/firefox/popup.html
+
+    update_manifest_version public-firefox/manifest.json
+    update_manifest_version cowboy/chrome/manifest.json
+    update_manifest_version cowboy/firefox/manifest.json
+
+    update_readme_version
+}
+
 build_chrome() {
     echo "Building Chrome extension..."
-    sed -ri "s/[\t ]*[0-9]+\.[0-9]+\.[0-9]+$/      ${version}/" public/popup.html
     node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js || exit 1
     [[ -d build ]] || exit 1
     pushd ./build > /dev/null 2>&1
@@ -25,7 +58,6 @@ build_chrome() {
 
 build_firefox() {
     echo "Building Firefox extension..."
-    sed -ri "s/[\t ]*[0-9]+\.[0-9]+\.[0-9]+$/      ${version}/" public-firefox/popup.html
     node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js || exit 1
     [[ -d build-firefox ]] || exit 1
     pushd ./build-firefox > /dev/null 2>&1
@@ -39,6 +71,8 @@ build_firefox() {
 
 # Generate manifests for both browsers
 node ./tools/generate-manifest.js all
+
+update_versions
 
 case "$TARGET" in
     chrome)

@@ -26,25 +26,37 @@ function readJson(filePath) {
 }
 
 function readVersion() {
-    const candidates = [
-        path.join(ROOT_DIR, 'public', 'manifest.json'),
-        path.join(ROOT_DIR, 'public-firefox', 'manifest.json')
-    ];
+    const manifestPath = path.join(ROOT_DIR, 'public', 'manifest.json');
 
-    for (const candidate of candidates) {
-        if (fs.existsSync(candidate)) {
-            const { version } = readJson(candidate);
-            if (version) return version;
-        }
+    if (!fs.existsSync(manifestPath)) {
+        throw new Error('Unable to determine version: public/manifest.json is missing.');
     }
 
-    throw new Error('Unable to determine version from manifest.json files.');
+    const { version } = readJson(manifestPath);
+    if (!version) {
+        throw new Error('Unable to determine version from public/manifest.json.');
+    }
+
+    return version;
 }
 
 function updateManifestVersion(filePath, version) {
     const manifest = readJson(filePath);
     manifest.version = version;
     fs.writeFileSync(filePath, JSON.stringify(manifest, null, 2) + '\n');
+}
+
+function updateReadmeVersion(filePath, version) {
+    if (!fs.existsSync(filePath)) return;
+    const readme = fs.readFileSync(filePath, 'utf-8');
+    const versionPattern = /(# Send2Mealie \()\d+\.\d+\.\d+(\))/;
+
+    if (!versionPattern.test(readme)) {
+        throw new Error(`Unable to update version in ${filePath}.`);
+    }
+
+    const updated = readme.replace(versionPattern, `$1${version}$2`);
+    fs.writeFileSync(filePath, updated);
 }
 
 function updatePopupVersion(filePath, version) {
@@ -57,6 +69,34 @@ function updatePopupVersion(filePath, version) {
 
     const updated = popupHtml.replace(versionPattern, `$1${version}$2`);
     fs.writeFileSync(filePath, updated);
+}
+
+function updateProjectVersions(version) {
+    const popupFiles = [
+        path.join(ROOT_DIR, 'public', 'popup.html'),
+        path.join(ROOT_DIR, 'public-firefox', 'popup.html'),
+        path.join(ROOT_DIR, 'cowboy', 'chrome', 'popup.html'),
+        path.join(ROOT_DIR, 'cowboy', 'firefox', 'popup.html')
+    ];
+    const manifestFiles = [
+        path.join(ROOT_DIR, 'public-firefox', 'manifest.json'),
+        path.join(ROOT_DIR, 'cowboy', 'chrome', 'manifest.json'),
+        path.join(ROOT_DIR, 'cowboy', 'firefox', 'manifest.json')
+    ];
+
+    popupFiles.forEach((filePath) => {
+        if (fs.existsSync(filePath)) {
+            updatePopupVersion(filePath, version);
+        }
+    });
+
+    manifestFiles.forEach((filePath) => {
+        if (fs.existsSync(filePath)) {
+            updateManifestVersion(filePath, version);
+        }
+    });
+
+    updateReadmeVersion(path.join(ROOT_DIR, 'README.md'), version);
 }
 
 function runScript(args) {
@@ -141,8 +181,6 @@ function printTree(rootDir) {
 
 function buildChrome(version, projectName) {
     console.log('Building Chrome extension...');
-    updatePopupVersion(path.join(ROOT_DIR, 'public', 'popup.html'), version);
-    updateManifestVersion(path.join(ROOT_DIR, 'public', 'manifest.json'), version);
     runWebpack('config/webpack.config.js');
 
     const output = createZip(
@@ -157,8 +195,6 @@ function buildChrome(version, projectName) {
 
 function buildFirefox(version, projectName) {
     console.log('Building Firefox extension...');
-    updatePopupVersion(path.join(ROOT_DIR, 'public-firefox', 'popup.html'), version);
-    updateManifestVersion(path.join(ROOT_DIR, 'public-firefox', 'manifest.json'), version);
     runWebpack('config/webpack.firefox.js');
 
     const output = createZip(
@@ -173,8 +209,6 @@ function buildFirefox(version, projectName) {
 
 function buildCowboyChrome(version, projectName) {
     console.log('Building Cowboy Chrome extension...');
-    updatePopupVersion(path.join(ROOT_DIR, 'cowboy', 'chrome', 'popup.html'), version);
-    updateManifestVersion(path.join(ROOT_DIR, 'cowboy', 'chrome', 'manifest.json'), version);
     runWebpack('config/webpack.cowboy.chrome.js');
 
     const output = createZip(
@@ -189,8 +223,6 @@ function buildCowboyChrome(version, projectName) {
 
 function buildCowboyFirefox(version, projectName) {
     console.log('Building Cowboy Firefox extension...');
-    updatePopupVersion(path.join(ROOT_DIR, 'cowboy', 'firefox', 'popup.html'), version);
-    updateManifestVersion(path.join(ROOT_DIR, 'cowboy', 'firefox', 'manifest.json'), version);
     runWebpack('config/webpack.cowboy.firefox.js');
 
     const output = createZip(
@@ -218,6 +250,8 @@ function main() {
 
     const projectName = path.basename(ROOT_DIR);
     const version = readVersion();
+
+    updateProjectVersions(version);
 
     if (TARGET === 'chrome' || TARGET === 'all') {
         buildChrome(version, projectName);
