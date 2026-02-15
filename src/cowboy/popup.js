@@ -29,10 +29,6 @@ function getMealieOriginPattern(urlObj) {
 }
 
 function getMealiePermissionOrigins(urlObj) {
-  const domain = urlObj.hostname.replace(/^www\./, '');
-  if (isIpOrLocalhost(domain)) {
-    return [`http://${domain}/*`, `https://${domain}/*`];
-  }
   return [getMealieOriginPattern(urlObj)];
 }
 
