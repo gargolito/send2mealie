@@ -49,7 +49,15 @@ const config = {
       patterns: [
         {
           from: '**/*',
+          context: 'cowboy/shared',
+        },
+        {
+          from: 'manifest.json',
           context: 'cowboy/firefox',
+        },
+        {
+          from: 'icons/**/*',
+          context: 'cowboy/chrome',
         },
       ]
     }),

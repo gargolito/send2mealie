@@ -48,11 +48,19 @@ const common = {
   plugins: [
     // Print file sizes
     new SizePlugin(),
-    // Copy static assets from `public` folder to `build` folder
+    // Copy shared assets + chrome manifest into `build` folder
     new CopyWebpackPlugin({
       patterns: [
         {
           from: '**/*',
+          context: 'public/shared',
+        },
+        {
+          from: 'manifest.json',
+          context: 'public',
+        },
+        {
+          from: 'icons/**/*',
           context: 'public',
         },
       ]

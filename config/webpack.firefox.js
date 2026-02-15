@@ -48,12 +48,20 @@ const config = {
   },
   plugins: [
     new SizePlugin(),
-    // Copy from public-firefox instead of public
+    // Copy shared assets + Firefox manifest + shared icons
     new CopyWebpackPlugin({
       patterns: [
         {
           from: '**/*',
+          context: 'public/shared',
+        },
+        {
+          from: 'manifest.json',
           context: 'public-firefox',
+        },
+        {
+          from: 'icons/**/*',
+          context: 'public',
         },
       ]
     }),
