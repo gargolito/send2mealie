@@ -1,7 +1,7 @@
 // "Operates only on user-approved sites and transmits only page URLs required for recipe detection and import."
 // This script does not scrape page content or transmit browsing data.
 
-import { executeScript, openPopup } from './browser-polyfill.js';
+import { executeScript, openPopup } from '../browser-polyfill.js';
 
 // Use browser namespace (Firefox) if available, otherwise chrome
 const api = typeof browser !== 'undefined' ? browser : chrome;

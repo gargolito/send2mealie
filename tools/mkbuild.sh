@@ -32,7 +32,6 @@ update_readme_version() {
 
 update_versions() {
     update_popup_version public/shared/popup.html
-    update_popup_version cowboy/shared/popup.html
 
     update_manifest_version public-firefox/manifest.json
     update_manifest_version cowboy/chrome/manifest.json

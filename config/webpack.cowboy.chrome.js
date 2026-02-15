@@ -10,7 +10,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const config = {
   entry: {
     popup: path.resolve(__dirname, '../src/cowboy/popup.js'),
-    contentScript: path.resolve(__dirname, '../src/cowboy/contentScript.js'),
+    contentScript: path.resolve(__dirname, '../src/contentScript.js'),
     background: path.resolve(__dirname, '../src/cowboy/background.js'),
   },
   output: {
@@ -49,7 +49,7 @@ const config = {
       patterns: [
         {
           from: '**/*',
-          context: 'cowboy/shared',
+          context: 'public/shared',
         },
         {
           from: 'manifest.json',

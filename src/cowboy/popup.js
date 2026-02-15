@@ -1,4 +1,4 @@
-import { DEFAULT_WHITELIST } from './whitelist.js';
+import { DEFAULT_WHITELIST } from '../whitelist.js';
 
 // Use browser namespace (Firefox) if available, otherwise chrome
 const api = typeof browser !== 'undefined' ? browser : chrome;

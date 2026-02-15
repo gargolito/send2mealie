@@ -73,8 +73,7 @@ function updatePopupVersion(filePath, version) {
 
 function updateProjectVersions(version) {
     const popupFiles = [
-        path.join(ROOT_DIR, 'public', 'shared', 'popup.html'),
-        path.join(ROOT_DIR, 'cowboy', 'shared', 'popup.html')
+        path.join(ROOT_DIR, 'public', 'shared', 'popup.html')
     ];
     const manifestFiles = [
         path.join(ROOT_DIR, 'public-firefox', 'manifest.json'),
