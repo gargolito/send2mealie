@@ -53,15 +53,16 @@ const common = {
       patterns: [
         {
           from: '**/*',
-          context: 'public/shared',
+          context: 'common',
         },
         {
-          from: 'manifest.json',
-          context: 'public',
+          from: 'manifest-chrome.json',
+          to: 'manifest.json',
+          context: '',
         },
         {
           from: 'icons/**/*',
-          context: 'public',
+          context: 'common',
         },
       ]
     }),

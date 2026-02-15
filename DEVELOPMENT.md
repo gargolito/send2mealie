@@ -19,10 +19,11 @@ Send2Mealie is a browser extension that detects recipe pages on whitelisted webs
 - **src/background.js** - Service worker (Chrome) / background script (Firefox); handles API calls and message passing
 - **src/browser-polyfill.js** - Browser API compatibility layer for Chrome/Firefox
 - **src/popup.js** - Extension popup UI; handles settings and site management
-- **public/popup.html** - Popup markup (Chrome)
-- **public/popup.css** - Popup styles (Chrome)
-- **public/manifest.json** - Chrome extension manifest (auto-generated from whitelist)
-- **public-firefox/** - Firefox-specific static assets and manifest
+- **common/popup.html** - Popup markup (shared)
+- **common/popup.css** - Popup styles (shared)
+- **manifest-chrome.json** - Chrome extension manifest (auto-generated from whitelist)
+- **manifest-firefox.json** - Firefox extension manifest (auto-generated from whitelist)
+- **cowboy/** - Cowboy-specific manifests and assets (HTTP/IP support)
 - **tools/generate-manifest.js** - Build script that syncs whitelist to manifests and popup.js
 
 ### Data Flow
@@ -48,18 +49,18 @@ Shows button → user clicks → sends to Mealie via background.js
 1. **generate-manifest.js** runs first:
    - Parses `src/whitelist.js` to extract sites
    - Sorts sites alphabetically
-   - Updates `public/manifest.json` (Chrome) and `public-firefox/manifest.json` (Firefox)
+   - Updates `manifest-chrome.json` (Chrome) and `manifest-firefox.json` (Firefox)
    - Updates `src/popup.js` DEFAULT_WHITELIST constant
 
 2. **Webpack** bundles:
    - `src/contentScript.js` (with whitelist imported)
    - `src/background.js` (with browser polyfill)
    - `src/popup.js` (with updated DEFAULT_WHITELIST)
-   - Static assets from `public/` (Chrome) or `public-firefox/` (Firefox)
+   - Static assets from `common/` (shared across browsers)
 
 3. **Output**: 
-   - Chrome: `build/` directory
-   - Firefox: `build-firefox/` directory
+   - Chrome: `build/chrome` directory
+   - Firefox: `build/firefox/` directory
 
 ## Setup & Installation
 - OS: Ubuntu Linux 24.04
@@ -84,7 +85,7 @@ npm run build:all       # Both browsers
 # 1. Go to chrome://extensions/
 # 2. Enable "Developer mode"
 # 3. Click "Load unpacked"
-# 4. Select the build/ directory
+# 4. Select the build/chrome directory
 
 # Load in Firefox
 # 1. npm run dist:firefox

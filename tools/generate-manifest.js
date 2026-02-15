@@ -48,7 +48,7 @@ const contentScriptMatches = sites.map(site => `https://*.${site}/*`);
  * Update Chrome manifest (Manifest V3)
  */
 function updateChromeManifest() {
-  const manifestPath = path.join(__dirname, '../public/manifest.json');
+  const manifestPath = path.join(__dirname, '../manifest-chrome.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
   manifest.host_permissions = hostPermissions;
   manifest.content_scripts[0].matches = contentScriptMatches;
@@ -63,7 +63,7 @@ function updateChromeManifest() {
  * and 'browser_action' instead of 'action'
  */
 function updateFirefoxManifest() {
-  const manifestPath = path.join(__dirname, '../public-firefox/manifest.json');
+  const manifestPath = path.join(__dirname, '../manifest-firefox.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
   // Firefox MV2: host permissions go in the permissions array

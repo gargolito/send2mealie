@@ -18,17 +18,19 @@ src/
 ├── browser-polyfill.js   # Browser API compatibility layer (Chrome MV3 / Firefox MV2)
 └── popup.js              # Extension popup UI for settings & site management
 
-public/                   # Chrome-specific assets
-├── manifest.json         # Chrome manifest (MV3, auto-updated during build)
+common/                   # Shared assets across all builds
 ├── popup.html            # Popup markup
 ├── popup.css             # Popup styles (all external CSS)
 └── icons/                # Extension icons
 
-public-firefox/           # Firefox-specific assets
-├── manifest.json         # Firefox manifest (MV2, auto-updated during build)
-├── popup.html            # Popup markup
-├── popup.css             # Popup styles
-└── icons/                # Extension icons
+manifest-chrome.json      # Chrome manifest (MV3, auto-updated during build)
+manifest-firefox.json     # Firefox manifest (MV2, auto-updated during build)
+
+cowboy/                   # Cowboy-specific manifests (HTTP/IP support)
+├── chrome/
+│   └── manifest.json
+└── firefox/
+    └── manifest.json, popup.html, popup.css, icons/
 
 tools/
 ├── generate-manifest.js  # Build script that syncs whitelist → manifests & popup.js
@@ -40,8 +42,8 @@ tools/
 ### Whitelist Management
 - Single source of truth: `src/whitelist.js`
 - Build script auto-generates:
-  - `public/manifest.json` (Chrome: host_permissions & content_scripts.matches)
-  - `public-firefox/manifest.json` (Firefox: permissions & content_scripts.matches)
+  - `manifest-chrome.json` (Chrome: host_permissions & content_scripts.matches)
+  - `manifest-firefox.json` (Firefox: permissions & content_scripts.matches)
   - `src/popup.js` (DEFAULT_WHITELIST, sorted alphabetically)
 - All stay perfectly in sync
 
@@ -68,8 +70,8 @@ tools/
 ## Build Process
 
 ```bash
-npm run build           # Chrome only → build/
-npm run build:firefox   # Firefox only → build-firefox/
+npm run build           # Chrome only → build/chrome/
+npm run build:firefox   # Firefox only → build/firefox/
 npm run build:all       # Both browsers
 
 # Or use npm scripts for distribution packages:
@@ -78,16 +80,16 @@ npm run dist:all           # Creates dist/chrome/send2mealie-X.Y.Z.zip and dist/
 # Step 1: node tools/generate-manifest.js [chrome|firefox|all]
 #   - Parse src/whitelist.js
 #   - Sort sites alphabetically
-#   - Update public/manifest.json (Chrome MV3)
-#   - Update public-firefox/manifest.json (Firefox MV2)
+#   - Update manifest-chrome.json (Chrome MV3)
+#   - Update manifest-firefox.json (Firefox MV2)
 #   - Update src/popup.js DEFAULT_WHITELIST
 
 # Step 2: webpack bundles everything
 #   - background.js (with browser polyfill)
 #   - contentScript.js (with whitelist imported)
 #   - popup.js (with updated DEFAULT_WHITELIST)
-#   - Static assets from public/ or public-firefox/
-#   - Output → build/ or build-firefox/
+#   - Static assets from common/ (shared)
+#   - Output → build/chrome/ or build/firefox/
 ```
 
 ## Adding New Recipe Sites

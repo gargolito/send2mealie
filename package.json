@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node ./tools/generate-manifest.js chrome && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js",
     "build:firefox": "node ./tools/generate-manifest.js firefox && node ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.firefox.js",
-    "build:all": "npm run build && npm run build:firefox",
+    "build:all": "npm run build && npm run build:firefox && npm run build:cowboy:all",
     "dist:chrome": "node ./tools/mkbuild.js chrome",
     "dist:firefox": "node ./tools/mkbuild.js firefox",
     "dist:all": "node ./tools/mkbuild.js all",

@@ -1,4 +1,4 @@
-# <img src="public/icons/icon_512.png" width="256" align="center">
+# <img src="common/icons/icon_512.png" width="256" align="center">
 * * *
 [![!Chrome Webstore](https://developer.chrome.com/static/docs/webstore/branding/image/UV4C4ybeBTsZt43U4xis.png)](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl) [![Firefox Browser Addons](https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/addon/send2mealie)
 
@@ -49,8 +49,8 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
 git clone https://github.com/gargolito/send2mealie.git
 cd send2mealie
 npm install
-npm run build      # Chrome build → build/
-npm run build:firefox  # Firefox build → build-firefox/
+npm run build      # Chrome build → build/chrome
+npm run build:firefox  # Firefox build → build/firefox/
 
 # Distribution packages
 npm run dist:chrome      # Chrome zip → dist/chrome/
@@ -81,13 +81,13 @@ npm run build:cowboy:all       # Both
 1. Open `chrome://extensions/`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select the `build/` directory
+4. Select the `build/chrome` directory
 
 #### Load in Firefox
 
 1. Open `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on**
-3. Select `build-firefox/manifest.json`
+3. Select `build/firefox/manifest.json`
 
 
 * * *

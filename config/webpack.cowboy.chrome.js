@@ -49,7 +49,7 @@ const config = {
       patterns: [
         {
           from: '**/*',
-          context: 'public/shared',
+          context: 'common',
         },
         {
           from: 'manifest.json',
@@ -57,7 +57,7 @@ const config = {
         },
         {
           from: 'icons/**/*',
-          context: 'cowboy/chrome',
+          context: 'cowboy',
         },
       ]
     }),

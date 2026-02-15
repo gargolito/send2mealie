@@ -26,15 +26,15 @@ function readJson(filePath) {
 }
 
 function readVersion() {
-    const manifestPath = path.join(ROOT_DIR, 'public', 'manifest.json');
+    const manifestPath = path.join(ROOT_DIR, 'manifest-chrome.json');
 
     if (!fs.existsSync(manifestPath)) {
-        throw new Error('Unable to determine version: public/manifest.json is missing.');
+        throw new Error('Unable to determine version: manifest-chrome.json is missing.');
     }
 
     const { version } = readJson(manifestPath);
     if (!version) {
-        throw new Error('Unable to determine version from public/manifest.json.');
+        throw new Error('Unable to determine version from manifest-chrome.json.');
     }
 
     return version;
@@ -73,10 +73,10 @@ function updatePopupVersion(filePath, version) {
 
 function updateProjectVersions(version) {
     const popupFiles = [
-        path.join(ROOT_DIR, 'public', 'shared', 'popup.html')
+        path.join(ROOT_DIR, 'common', 'popup.html')
     ];
     const manifestFiles = [
-        path.join(ROOT_DIR, 'public-firefox', 'manifest.json'),
+        path.join(ROOT_DIR, 'manifest-firefox.json'),
         path.join(ROOT_DIR, 'cowboy', 'chrome', 'manifest.json'),
         path.join(ROOT_DIR, 'cowboy', 'firefox', 'manifest.json')
     ];
@@ -181,7 +181,7 @@ function buildChrome(version, projectName) {
     runWebpack('config/webpack.config.js');
 
     const output = createZip(
-        path.join(ROOT_DIR, 'build'),
+        path.join(ROOT_DIR, 'build', 'chrome'),
         path.join(ROOT_DIR, 'dist', 'chrome'),
         `${projectName}-${version}.zip`,
         projectName
@@ -195,7 +195,7 @@ function buildFirefox(version, projectName) {
     runWebpack('config/webpack.firefox.js');
 
     const output = createZip(
-        path.join(ROOT_DIR, 'build-firefox'),
+        path.join(ROOT_DIR, 'build/firefox'),
         path.join(ROOT_DIR, 'dist', 'firefox'),
         `${projectName}-${version}.xpi`,
         projectName
@@ -234,14 +234,14 @@ function buildCowboyFirefox(version, projectName) {
 
 function main() {
     const isStandardTarget = TARGET === 'chrome' || TARGET === 'firefox' || TARGET === 'all';
-    const isCowboyTarget = TARGET === 'cowboy:chrome' || TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all';
+    const isCowboyTarget = TARGET === 'cowboy:chrome' || TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all' || TARGET === 'all';
 
     if (isStandardTarget) {
         const manifestTarget = TARGET === 'all' ? 'all' : TARGET;
         runScript(['./tools/generate-manifest.js', manifestTarget]);
     }
     if (isCowboyTarget) {
-        const manifestTarget = TARGET === 'cowboy:all' ? 'all' : TARGET.split(':')[1];
+        const manifestTarget = TARGET === 'cowboy:all' || TARGET === 'all' ? 'all' : TARGET.split(':')[1];
         runScript(['./tools/generate-manifest-cowboy.js', manifestTarget]);
     }
 
@@ -256,10 +256,10 @@ function main() {
     if (TARGET === 'firefox' || TARGET === 'all') {
         buildFirefox(version, projectName);
     }
-    if (TARGET === 'cowboy:chrome' || TARGET === 'cowboy:all') {
+    if (TARGET === 'cowboy:chrome' || TARGET === 'cowboy:all' || TARGET === 'all') {
         buildCowboyChrome(version, projectName);
     }
-    if (TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all') {
+    if (TARGET === 'cowboy:firefox' || TARGET === 'cowboy:all' || TARGET === 'all') {
         buildCowboyFirefox(version, projectName);
     }
 

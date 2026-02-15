@@ -9,7 +9,7 @@ const PATHS = require('./paths');
 
 // Firefox-specific webpack configuration
 // Standalone config (not merged) to avoid plugin conflicts
-// Outputs to build-firefox/ and uses public-firefox/ for static assets
+// Outputs to build/firefox/ and uses common/ for shared assets
 const config = {
   entry: {
     popup: PATHS.src + '/popup.js',
@@ -17,7 +17,7 @@ const config = {
     background: PATHS.src + '/background.js',
   },
   output: {
-    path: path.resolve(__dirname, '../build-firefox'),
+    path: path.resolve(__dirname, '../build/firefox'),
     filename: '[name].js',
   },
   devtool: 'source-map',
@@ -53,15 +53,16 @@ const config = {
       patterns: [
         {
           from: '**/*',
-          context: 'public/shared',
+          context: 'common',
         },
         {
-          from: 'manifest.json',
-          context: 'public-firefox',
+          from: 'manifest-firefox.json',
+          to: 'manifest.json',
+          context: '',
         },
         {
           from: 'icons/**/*',
-          context: 'public',
+          context: 'common',
         },
       ]
     }),
