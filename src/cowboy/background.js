@@ -359,4 +359,42 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (msg?.type === "testMealieConnection") {
+    (async () => {
+      const { mealieUrl, mealieApiToken } = msg || {};
+      if (!mealieUrl || !mealieApiToken) {
+        sendResponse({ ok: false, status: 0, error: "Missing configuration" });
+        return;
+      }
+      try {
+        const resp = await fetch(`${mealieUrl}/api/users/self`, {
+          headers: { Authorization: `Bearer ${mealieApiToken}` }
+        });
+        sendResponse({ ok: resp.ok, status: resp.status });
+      } catch (e) {
+        sendResponse({ ok: false, status: 0, error: "Connection error" });
+      }
+    })();
+    return true;
+  }
+
+  if (msg?.type === "testMealieConnection") {
+    (async () => {
+      const { mealieUrl, mealieApiToken } = msg || {};
+      if (!mealieUrl || !mealieApiToken) {
+        sendResponse({ ok: false, status: 0, error: "Missing configuration" });
+        return;
+      }
+      try {
+        const resp = await fetch(`${mealieUrl}/api/users/self`, {
+          headers: { Authorization: `Bearer ${mealieApiToken}` }
+        });
+        sendResponse({ ok: resp.ok, status: resp.status });
+      } catch (e) {
+        sendResponse({ ok: false, status: 0, error: "Connection error" });
+      }
+    })();
+    return true;
+  }
 });
