@@ -47,12 +47,37 @@ function getOriginPatternsForDomain(domain) {
 async function autoSave() {
     const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
     const mealieApiToken = document.getElementById("mealieApiToken").value.trim();
+    const mealieGroupSlug = document.getElementById("mealieGroupSlug").value.trim() || "home";
+    let enableSendButton = document.getElementById("enableSendButton").checked;
     const enableDuplicateCheck = document.getElementById("enableDuplicateCheck").checked;
     const openEditMode = document.getElementById("openEditMode").checked;
     const enableParse = document.getElementById("enableParse").checked;
 
+    let resolvedDuplicateCheck = enableDuplicateCheck;
+    let resolvedSendButton = enableSendButton;
+    if (!mealieApiToken) {
+        if (enableDuplicateCheck) {
+            alert("API token is required to enable duplicate checking.");
+            document.getElementById("enableDuplicateCheck").checked = false;
+            resolvedDuplicateCheck = false;
+        }
+        if (enableSendButton) {
+            alert("API token is required to enable the page button.");
+            document.getElementById("enableSendButton").checked = false;
+            resolvedSendButton = false;
+        }
+    }
+
     const sanitizedUrl = mealieUrl && isValidUrl(mealieUrl) ? mealieUrl : "";
-    await api.storage.sync.set({ mealieUrl: sanitizedUrl, mealieApiToken, enableDuplicateCheck, openEditMode, enableParse });
+    await api.storage.sync.set({
+        mealieUrl: sanitizedUrl,
+        mealieApiToken,
+        mealieGroupSlug,
+        enableSendButton: resolvedSendButton,
+        enableDuplicateCheck: resolvedDuplicateCheck,
+        openEditMode,
+        enableParse
+    });
 }
 
 function showDefaultSitesModal() {
@@ -73,9 +98,11 @@ function closeModal() {
 }
 
 async function load() {
-    const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck", "openEditMode", "enableParse"]) || {};
+    const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableSendButton", "enableDuplicateCheck", "openEditMode", "enableParse"]) || {};
     document.getElementById("mealieUrl").value = cfg.mealieUrl || "";
     document.getElementById("mealieApiToken").value = cfg.mealieApiToken || "";
+    document.getElementById("mealieGroupSlug").value = cfg.mealieGroupSlug || "home";
+    document.getElementById("enableSendButton").checked = cfg.enableSendButton !== false;
     document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
     document.getElementById("openEditMode").checked = cfg.openEditMode || false;
     document.getElementById("enableParse").checked = cfg.enableParse || false;
@@ -127,7 +154,6 @@ async function validateAndAddSite(url, domain) {
                 userSites.push(domain);
                 await api.storage.sync.set({ userSites });
                 await renderSitesList();
-                alert(`✓ Site added: ${domain}\nMealie can parse this site.`);
             } else {
                 alert(`${domain} is already added.`);
             }
@@ -195,15 +221,63 @@ async function testConnection(mealieUrl, mealieApiToken) {
 
         if (response?.ok) {
             await api.storage.sync.set({ mealieUrl, mealieApiToken });
-            alert("Connection OK");
+            if (mealieApiToken) {
+                alert("Connection OK");
+            } else {
+                alert("Server reachable (no API token provided).");
+            }
         } else if (response?.status === 401) {
             alert("Invalid API token");
+        } else if (!mealieApiToken && response?.reason === "not_mealie") {
+            alert("Server reachable, but this doesn't look like Mealie.");
         } else if (response?.status) {
             alert("Connection failed");
         } else {
             alert("Connection error");
         }
     } catch (e) { alert("Connection error"); }
+}
+
+async function checkLogin() {
+    const mealieUrl = trimSlash(document.getElementById("mealieUrl").value.trim());
+    if (!isValidUrl(mealieUrl)) {
+        alert("Invalid Mealie URL. Must be HTTP or HTTPS.");
+        return;
+    }
+
+    let origin;
+    try {
+        origin = getMealieOriginPattern(new URL(mealieUrl));
+    } catch {
+        alert("Invalid Mealie URL. Must be HTTP or HTTPS.");
+        return;
+    }
+
+    const granted = await api.permissions.request({ permissions: ['cookies'], origins: [origin] });
+    if (!granted) {
+        alert("Permission denied. Please allow access to your Mealie server URL.");
+        return;
+    }
+
+    try {
+        const response = await new Promise((resolve) => {
+            api.runtime.sendMessage({ type: "checkMealieLogin", mealieUrl }, resolve);
+        });
+
+        if (response?.loggedIn) {
+            alert("Logged in via browser session.");
+            return;
+        }
+
+        if (response?.status === 401 || response?.status === 403) {
+            alert("Not logged in (no active session).");
+            return;
+        }
+
+        alert("Login check failed.");
+    } catch (e) {
+        alert("Login check error.");
+    }
 }
 
 async function sendCurrent() {
@@ -240,6 +314,8 @@ function addUserSite(url) {
 
 document.getElementById("mealieUrl").addEventListener("input", autoSave);
 document.getElementById("mealieApiToken").addEventListener("input", autoSave);
+document.getElementById("mealieGroupSlug").addEventListener("input", autoSave);
+document.getElementById("enableSendButton").addEventListener("change", autoSave);
 document.getElementById("enableDuplicateCheck").addEventListener("change", autoSave);
 document.getElementById("openEditMode").addEventListener("change", autoSave);
 document.getElementById("enableParse").addEventListener("change", autoSave);
@@ -268,6 +344,7 @@ document.getElementById("testBtn").addEventListener("click", () => {
         testConnection(mealieUrl, mealieApiToken);
     });
 });
+document.getElementById("checkLoginBtn").addEventListener("click", checkLogin);
 document.getElementById("addSiteBtn").addEventListener("click", () => {
     const url = document.getElementById("customSiteUrl").value.trim();
     if (url) {

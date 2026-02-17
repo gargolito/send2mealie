@@ -7,7 +7,9 @@ import { executeScript, openPopup } from './browser-polyfill.js';
 const api = typeof browser !== 'undefined' ? browser : chrome;
 const isFirefox = typeof browser !== 'undefined';
 const actionAPI = api.action || api.browserAction;
+const menuAPI = api.contextMenus || api.menus;
 const permissionWarningState = new Map();
+const AUTH_COOKIE_NAME = 'mealie.access_token';
 
 function flagPermissionWarning(tabId, domain) {
   if (!actionAPI?.setBadgeText) return;
@@ -60,8 +62,23 @@ async function isRecipePage(url, mealieUrl, mealieApiToken) {
   }
 }
 
+function createSend2MealieContextMenu() {
+  if (!menuAPI?.create) return;
+  menuAPI.removeAll?.(() => {
+    menuAPI.create({
+      id: 'send2mealie',
+      title: 'Send2Mealie',
+      contexts: ['page']
+    });
+  });
+}
+
 api.runtime.onInstalled.addListener(() => {
-  // no-op
+  createSend2MealieContextMenu();
+});
+
+api.runtime.onStartup?.addListener(() => {
+  createSend2MealieContextMenu();
 });
 
 // Injects the content script only after page load completes,
@@ -111,7 +128,7 @@ api.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 // Handle action/browserAction click - use appropriate API based on browser
 if (actionAPI?.onClicked) {
   actionAPI.onClicked.addListener((tab) => {
-    api.storage.sync.get(["mealieUrl", "mealieApiToken", "openEditMode", "enableParse"]).then(async (cfg) => {
+    api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "openEditMode", "enableParse"]).then(async (cfg) => {
       if (!cfg.mealieUrl || !cfg.mealieApiToken) {
         openPopup();
         return;
@@ -119,7 +136,7 @@ if (actionAPI?.onClicked) {
       try {
         const recipe = await createRecipeViaApi(tab.url, cfg.mealieUrl, cfg.mealieApiToken);
         if (cfg.openEditMode && recipe) {
-          await openRecipeEditPage(recipe, cfg.mealieUrl, cfg.mealieApiToken, cfg.enableParse);
+          await openRecipeEditPage(recipe, cfg.mealieUrl, cfg.mealieApiToken, cfg.enableParse, cfg.mealieGroupSlug);
         }
       } catch (e) {
         // Error already handled in createRecipeViaApi
@@ -156,6 +173,50 @@ async function checkDuplicate(url, mealieUrl, mealieApiToken) {
     return data?.items?.length > 0 ? data.items[0] : null;
   } catch (e) {
     return null;
+  }
+}
+
+async function checkMealieHtml(mealieUrl) {
+  try {
+    const resp = await fetch(mealieUrl, { method: 'GET', redirect: 'follow' });
+    if (!resp.ok) {
+      return { ok: false, status: resp.status };
+    }
+    const text = await resp.text();
+    const snippet = text.slice(0, 5000).toLowerCase();
+    const looksLikeMealie = snippet.includes('mealie');
+    return looksLikeMealie
+      ? { ok: true, status: resp.status }
+      : { ok: false, status: resp.status, reason: 'not_mealie' };
+  } catch (e) {
+    return { ok: false, status: 0 };
+  }
+}
+
+async function checkLoginStatus(mealieUrl) {
+  try {
+    const endpoint = new URL('/api/groups/self', mealieUrl);
+    const resp = await fetch(endpoint.href, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    return { loggedIn: resp.ok, status: resp.status };
+  } catch (e) {
+    return { loggedIn: false, status: 0 };
+  }
+}
+
+async function checkLoginCookie(mealieUrl) {
+  try {
+    if (!api.cookies?.getAll) {
+      return { checked: false };
+    }
+    const origin = new URL(mealieUrl).origin;
+    const cookies = await api.cookies.getAll({ url: origin, name: AUTH_COOKIE_NAME });
+    const hasToken = Array.isArray(cookies) && cookies.some((cookie) => Boolean(cookie?.value));
+    return { checked: true, loggedIn: hasToken, status: hasToken ? 200 : 401 };
+  } catch (e) {
+    return { checked: false };
   }
 }
 
@@ -242,7 +303,7 @@ async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries =
   return recipe;
 }
 
-async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse) {
+async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse, groupSlugOverride) {
   // Handle string recipe (just slug/name)
   let recipeSlug = recipe?.slug || (typeof recipe === 'string' ? recipe : null);
 
@@ -252,11 +313,8 @@ async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse
   }
 
   try {
-    const groupSlug = await getGroupSlug(mealieUrl, mealieApiToken);
-    if (!groupSlug) {
-      console.error('Send2Mealie: Failed to fetch group slug');
-      return false;
-    }
+    const configuredSlug = (groupSlugOverride || '').trim();
+    const groupSlug = configuredSlug || (await getGroupSlug(mealieUrl, mealieApiToken)) || 'home';
 
     const params = new URLSearchParams({ edit: 'true' });
     if (enableParse) {
@@ -273,6 +331,29 @@ async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse
   }
 }
 
+async function handleContextMenuSend(pageUrl) {
+  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableDuplicateCheck", "enableParse"]);
+  const { mealieUrl, mealieApiToken, mealieGroupSlug, enableDuplicateCheck } = cfg || {};
+  const enableParse = cfg?.enableParse === true;
+  if (!mealieUrl || !mealieApiToken) {
+    openPopup();
+    return;
+  }
+
+  if (enableDuplicateCheck) {
+    const existing = await checkDuplicate(pageUrl, mealieUrl, mealieApiToken);
+    if (existing) {
+      const updatedRecipe = await waitForRecipeSlug(existing, mealieUrl, mealieApiToken);
+      await openRecipeEditPage(updatedRecipe, mealieUrl, mealieApiToken, enableParse, mealieGroupSlug);
+      return;
+    }
+  }
+
+  let recipe = await createRecipeViaApi(pageUrl, mealieUrl, mealieApiToken);
+  recipe = await waitForRecipeSlug(recipe, mealieUrl, mealieApiToken);
+  await openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse, mealieGroupSlug);
+}
+
 
 // Handles messages from content scripts related to recipe detection,
 // duplicate checking, and explicit user-initiated imports.
@@ -282,8 +363,8 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // This operation is not performed automatically.
   if (msg?.type === "createViaApi" && msg.url) {
     (async () => {
-      const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "enableDuplicateCheck", "openEditMode", "enableParse"]);
-      const { mealieUrl, mealieApiToken, enableDuplicateCheck, openEditMode, enableParse } = cfg;
+      const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableDuplicateCheck", "openEditMode", "enableParse"]);
+      const { mealieUrl, mealieApiToken, mealieGroupSlug, enableDuplicateCheck, openEditMode, enableParse } = cfg;
       if (!mealieUrl || !mealieApiToken) { openPopup(); sendResponse({ success: false }); return; }
       try {
         if (enableDuplicateCheck) {
@@ -293,7 +374,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             if (openEditMode) {
               // Wait for recipe to be fully processed before opening edit page
               const updatedRecipe = await waitForRecipeSlug(existing, mealieUrl, mealieApiToken);
-              await openRecipeEditPage(updatedRecipe, mealieUrl, mealieApiToken, enableParse);
+              await openRecipeEditPage(updatedRecipe, mealieUrl, mealieApiToken, enableParse, mealieGroupSlug);
             }
             return;
           }
@@ -312,7 +393,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (openEditMode) {
           // Wait for recipe to be fully processed before opening edit page
           recipe = await waitForRecipeSlug(recipe, mealieUrl, mealieApiToken);
-          openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse).catch(e => {
+          openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse, mealieGroupSlug).catch(e => {
             console.error('Send2Mealie: Failed to open edit page after recipe creation', e);
           });
         }
@@ -360,4 +441,59 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (msg?.type === "checkMealieLogin") {
+    (async () => {
+      const { mealieUrl } = msg || {};
+      if (!mealieUrl) {
+        sendResponse({ loggedIn: false, status: 0 });
+        return;
+      }
+      const cookieResult = await checkLoginCookie(mealieUrl);
+      if (cookieResult.checked) {
+        sendResponse({ loggedIn: cookieResult.loggedIn, status: cookieResult.status });
+        return;
+      }
+      const result = await checkLoginStatus(mealieUrl);
+      sendResponse(result);
+    })();
+    return true;
+  }
+
+  if (msg?.type === "testMealieConnection") {
+    (async () => {
+      const { mealieUrl, mealieApiToken } = msg || {};
+      if (!mealieUrl) {
+        sendResponse({ ok: false, status: 0, error: "Missing configuration" });
+        return;
+      }
+
+      if (!mealieApiToken) {
+        const result = await checkMealieHtml(mealieUrl);
+        sendResponse(result);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${mealieUrl}/api/users/self`, {
+          headers: { Authorization: `Bearer ${mealieApiToken}` }
+        });
+        sendResponse({ ok: resp.ok, status: resp.status });
+      } catch (e) {
+        sendResponse({ ok: false, status: 0, error: "Connection error" });
+      }
+    })();
+    return true;
+  }
 });
+
+if (menuAPI?.onClicked) {
+  menuAPI.onClicked.addListener((info, tab) => {
+    if (info?.menuItemId !== 'send2mealie') return;
+    const pageUrl = info?.pageUrl || tab?.url;
+    if (!pageUrl) return;
+    handleContextMenuSend(pageUrl).catch((e) => {
+      console.error('Send2Mealie: Context menu handler failed', e);
+    });
+  });
+}

@@ -2,7 +2,7 @@
 * * *
 [![!Chrome Webstore](https://developer.chrome.com/static/docs/webstore/branding/image/UV4C4ybeBTsZt43U4xis.png)](https://chromewebstore.google.com/detail/send2mealie/eagkljoemahmoockacaccngpahbljddl) [![Firefox Browser Addons](https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/addon/send2mealie)
 
-# Send2Mealie (1.7.1)
+# Send2Mealie (2.0.0)
 **Send recipes from the web directly to your [Mealie](https://github.com/mealie-recipes/mealie) instance.**
 
 Send2Mealie is a browser extension for Chrome and Firefox that adds a “Send to Mealie” button to Mealie supported recipe websites, allowing you to import recipes into your own Mealie server with minimal friction.
@@ -26,6 +26,9 @@ Built for self-hosters who want explicit control, minimal permissions, and predi
 
 -   **Duplicate detection**
     Optional warning before importing recipes that already exist in Mealie.
+
+-   **Right-click Send2Mealie menu**
+    Send the current page to Mealie directly from the browser context menu, with optional duplicate checks.
 
 -   **Secure configuration storage**
     Mealie server URL and API token are stored using the browser’s encrypted sync storage.
@@ -104,8 +107,11 @@ npm run build:cowboy:all       # Both
 2. Enter your Mealie server URL
    - Standard: `https://mealie.example.com`
    - Local/HTTP: `http://localhost:8000` or `http://192.168.1.100:8080` (cowboy version only)
-3. Paste your API token
-4. Click **Test Connection** to verify connectivity
+3. (Optional) Paste your API token
+    - Required for the page button and duplicate checks
+4. (Optional) Set **Group Slug** (defaults to `home`)
+5. Click **Test Connection** to verify connectivity
+6. (Optional) Use **Check Login (Browser Session)** to verify cookie-based login
 
 ### Adding Custom Recipe Sites
 You can add recipe websites beyond the default 15+ sites:

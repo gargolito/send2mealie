@@ -26,15 +26,15 @@ function readJson(filePath) {
 }
 
 function readVersion() {
-    const manifestPath = path.join(ROOT_DIR, 'manifest-chrome.json');
+    const packagePath = path.join(ROOT_DIR, 'package.json');
 
-    if (!fs.existsSync(manifestPath)) {
-        throw new Error('Unable to determine version: manifest-chrome.json is missing.');
+    if (!fs.existsSync(packagePath)) {
+        throw new Error('Unable to determine version: package.json is missing.');
     }
 
-    const { version } = readJson(manifestPath);
+    const { version } = readJson(packagePath);
     if (!version) {
-        throw new Error('Unable to determine version from manifest-chrome.json.');
+        throw new Error('Unable to determine version from package.json.');
     }
 
     return version;

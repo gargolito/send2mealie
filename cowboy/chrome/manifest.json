@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Send2Mealie (Insecure/Dev)",
-  "version": "1.7.1",
+  "version": "2.0.0",
   "description": "Adds a configurable 'Send to Mealie' button to supported recipe pages. Allows HTTP and IP addresses for Mealie server. Developer installation only.",
   "action": {
     "default_title": "Send to Mealie",
@@ -23,6 +23,7 @@
   "permissions": [
     "storage",
     "activeTab",
+    "contextMenus",
     "scripting",
     "notifications"
   ],
@@ -46,6 +47,9 @@
   "optional_host_permissions": [
     "http://*/*",
     "https://*/*"
+  ],
+  "optional_permissions": [
+    "cookies"
   ],
   "content_scripts": [
     {

@@ -99,12 +99,16 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
     const domain = hostname.replace(/^www\./, '');
 
     try {
-      const data = await api.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiToken']) || {};
+      const data = await api.storage.sync.get(['domainWhitelist', 'userSites', 'mealieUrl', 'mealieApiToken', 'enableSendButton']) || {};
       // Built-in supported domains combined with user-approved custom sites.
       // No access occurs outside these domains.
       const whitelist = data.domainWhitelist || DEFAULT_WHITELIST;
       const userSites = data.userSites || [];
       const allDomains = [...whitelist, ...userSites];
+
+      if (data.enableSendButton === false) {
+        return;
+      }
 
       if (allDomains.some(w => domain.endsWith(w))) {
         if (!data.mealieUrl || !data.mealieApiToken) {

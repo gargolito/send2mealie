@@ -23,6 +23,7 @@
   "permissions": [
     "storage",
     "activeTab",
+    "contextMenus",
     "scripting",
     "notifications"
   ],
@@ -45,6 +46,9 @@
   ],
   "optional_host_permissions": [
     "https://*/*"
+  ],
+  "optional_permissions": [
+    "cookies"
   ],
   "content_scripts": [
     {

@@ -54,7 +54,7 @@ body {
   font-size: var(--font-size-base);
   color: var(--text-primary);
   width: 400px;
-  max-height: 680px;
+  max-height: 800px;
   overflow-y: auto;
   background-color: var(--bg-primary);
   line-height: var(--line-height-normal);
@@ -409,7 +409,7 @@ body {
   border-radius: 4px;
   padding: var(--space-xl);
   max-width: 340px;
-  max-height: 420px;
+  max-height: 400px;
   overflow-y: auto;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-standard);
@@ -432,7 +432,7 @@ body {
   padding: var(--space-md) 0;
   color: var(--text-primary);
   font-size: var(--font-size-md);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-tight);
   position: relative;
   padding-left: var(--space-lg);
 }

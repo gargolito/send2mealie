@@ -9,10 +9,10 @@
   <div class="header">
     <h1>Send to Mealie</h1>
   </div>
-<details>
+<details open>
   <summary>Setup</summary>
   <!-- Configuration Section -->
-  <section class="section section-setup">
+  <section class="section section-setup" >
     <h2 class="section-title">Server Setup</h2>
     <div class="control-group">
       <label for="mealieUrl" class="label">Mealie Server Address</label>
@@ -21,10 +21,16 @@
     </div>
     <div class="control-group">
       <label for="mealieApiToken" class="label">API Token</label>
-      <p class="hint">Get this from Profile → API Tokens on your Mealie server</p>
+      <p class="hint">Optional unless you enable the page button or duplicate checks.</p>
       <input id="mealieApiToken" class="input" type="password" placeholder="••••••">
     </div>
+    <div class="control-group">
+      <label for="mealieGroupSlug" class="label">Your Mealie Group</label>
+      <p class="hint">Used for the edit URL. Default is "home".</p>
+      <input id="mealieGroupSlug" class="input" type="text" placeholder="home">
+    </div>
     <button id="testBtn" class="btn btn-primary">Test Connection</button>
+    <button id="checkLoginBtn" class="btn btn-secondary">Check Login (Browser Session)</button>
   </section>
 
   <!-- Behavior Section -->
@@ -32,14 +38,20 @@
     <h2 class="section-title">Import Behavior</h2>
     <div class="checkbox-group">
       <label class="checkbox-label">
+      <input type="checkbox" id="enableSendButton" checked>
+      <span class="checkbox-text">Enable Send2Mealie button on recipe pages.</span>
+      </label>
+      <p class="hint">Shows the “Send to Mealie” button on recipe pages (requires API token).</p>
+
+      <label class="checkbox-label">
       <input type="checkbox" id="enableDuplicateCheck" checked>
       <span class="checkbox-text">Check for duplicates before sending</span>
       </label>
-      <p class="hint">Warns if the recipe already exists in your Mealie</p>
+      <p class="hint">Warns if the recipe already exists in your Mealie (requires API token).</p>
 
       <label class="checkbox-label">
       <input type="checkbox" id="openEditMode">
-      <span class="checkbox-text">Open recipe in edit mode</span>
+      <span class="checkbox-text">Add recipe in edit mode</span>
       </label>
       <p class="hint">Automatically opens the recipe editor after importing.</p>
 
@@ -80,8 +92,8 @@
       <button class="modal-close" id="modalClose">Close</button>
     </div>
   </div>
-  <div class="hint">
-      1.7.1
+  <div class="footer">
+      2.0.0
   </div>
   <script src="popup.js"></script>
 </body>

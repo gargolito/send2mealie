@@ -16,6 +16,9 @@ const config = {
   output: {
     path: path.resolve(__dirname, '../build-cowboy/firefox'),
     filename: '[name].js',
+    devtoolModuleFilenameTemplate: (info) => info.resourcePath
+      .replace(/[\\/]src[\\/]cowboy[\\/]/g, '/src/')
+      .replace(/\\/g, '/'),
   },
   devtool: 'source-map',
   stats: {
