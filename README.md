@@ -107,11 +107,40 @@ npm run build:cowboy:all       # Both
 2. Enter your Mealie server URL
    - Standard: `https://mealie.example.com`
    - Local/HTTP: `http://localhost:8000` or `http://192.168.1.100:8080` (cowboy version only)
-3. (Optional) Paste your API token
-    - Required for the page button and duplicate checks
-4. (Optional) Set **Group Slug** (defaults to `home`)
+3. **(Optional)** Paste your API token
+    - Only required for:
+      - The "Send to Mealie" page button
+      - Duplicate detection
+    - Not required for context menu or import settings
+4. **(Optional)** Set **Group Slug** (defaults to `home`)
+    - Used in edit page URLs
 5. Click **Test Connection** to verify connectivity
-6. (Optional) Use **Check Login (Browser Session)** to verify cookie-based login
+    - Works with or without API token
+    - Checks for valid Mealie server
+6. **(Optional)** Use **Check Login (Browser Session)** to verify cookie-based authentication
+    - Checks if you're logged into Mealie via browser cookies
+    - Useful when API token is not configured
+
+### Import Behavior Settings
+- **Enable Send2Mealie button on recipe pages** - Show the button on recipe sites (requires API token)
+- **Check for duplicates before sending** - Warn if recipe already exists (requires API token)
+- **Add recipe in edit mode** - Automatically open the recipe editor after importing
+- **Enable parse mode** - Tell Mealie to parse the recipe before editing
+
+### Using the Context Menu
+You can send recipes to Mealie using the right-click context menu:
+
+1. Visit any recipe page on a supported site (or any site globally)
+2. Right-click anywhere on the page
+3. Select **"Send2Mealie"** from the context menu
+4. The recipe imports into Mealie
+5. If **"Add recipe in edit mode"** is enabled in settings, the edit page opens automatically
+6. If **"Check for duplicates before sending"** is enabled and you have an API token, the extension verifies the recipe isn't already in Mealie
+
+**Notes:**
+- The context menu works with or without an API token (uses browser session if logged in)
+- Duplicate checking requires an API token
+- Works on any website globally (not limited to whitelisted recipe sites)
 
 ### Adding Custom Recipe Sites
 You can add recipe websites beyond the default 15+ sites:
