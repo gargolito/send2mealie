@@ -222,15 +222,14 @@ async function checkLoginCookie(mealieUrl) {
 
 async function createRecipeViaApi(url, mealieUrl, mealieApiToken) {
   try {
+    // API endpoint - requires token
     const fetchUrl = new URL('/api/recipes/create/url', mealieUrl).href;
-    const headers = { 'Content-Type': 'application/json' };
-    if (mealieApiToken) {
-      headers['Authorization'] = `Bearer ${mealieApiToken}`;
-    }
     const resp = await fetch(fetchUrl, {
       method: 'POST',
-      headers,
-      credentials: mealieApiToken ? 'omit' : 'include',
+      headers: {
+        'Authorization': `Bearer ${mealieApiToken}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ url })
     });
     if (!resp.ok) throw new Error('Failed to send recipe');
@@ -352,8 +351,21 @@ async function handleContextMenuSend(pageUrl) {
     return;
   }
 
-  // Duplicate check requires API token
-  if (enableDuplicateCheck && mealieApiToken) {
+  // When no API token, use web interface endpoint
+  if (!mealieApiToken) {
+    const groupSlug = (mealieGroupSlug || '').trim() || 'home';
+    const params = new URLSearchParams({ url: pageUrl });
+    if (enableParse) {
+      params.append('parse', 'true');
+    }
+    const createUrl = `${mealieUrl}/g/${groupSlug}/r/create/url?${params.toString()}`;
+    await api.tabs.create({ url: createUrl });
+    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Opening recipe in Mealie..." });
+    return;
+  }
+
+  // API token provided - use API endpoint
+  if (enableDuplicateCheck) {
     const existing = await checkDuplicate(pageUrl, mealieUrl, mealieApiToken);
     if (existing) {
       const updatedRecipe = await waitForRecipeSlug(existing, mealieUrl, mealieApiToken);
