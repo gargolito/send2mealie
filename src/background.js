@@ -343,24 +343,49 @@ async function openRecipeEditPage(recipe, mealieUrl, mealieApiToken, enableParse
 }
 
 async function handleContextMenuSend(pageUrl) {
-  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableDuplicateCheck", "enableParse"]);
-  const { mealieUrl, mealieApiToken, mealieGroupSlug, enableDuplicateCheck } = cfg || {};
+  const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableDuplicateCheck", "openEditMode", "enableParse"]);
+  const { mealieUrl, mealieApiToken, mealieGroupSlug, enableDuplicateCheck, openEditMode } = cfg || {};
   const enableParse = cfg?.enableParse === true;
   if (!mealieUrl) {
     openPopup();
     return;
   }
 
-  // When no API token, use web interface endpoint
+  // When no API token, use web interface endpoint with cookie auth
   if (!mealieApiToken) {
-    const groupSlug = (mealieGroupSlug || '').trim() || 'home';
-    const params = new URLSearchParams({ recipe_import_url: pageUrl });
-    if (enableParse) {
-      params.append('parse', 'true');
+    try {
+      const groupSlug = (mealieGroupSlug || '').trim() || 'home';
+      // Don't URL encode the recipe URL - send it as-is
+      const createUrl = `${mealieUrl}/g/${groupSlug}/r/create/url?recipe_import_url=${pageUrl}`;
+
+      // Fetch to get the recipe slug response
+      const resp = await fetch(createUrl, {
+        credentials: 'include'
+      });
+
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+
+      const recipe = await resp.json();
+      const recipeSlug = recipe.slug || recipe;
+
+      api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icons/icon_128.png", message: "Recipe imported." });
+
+      // Open edit page if requested
+      if (openEditMode && recipeSlug) {
+        const params = new URLSearchParams();
+        params.append('edit', 'true');
+        if (enableParse) {
+          params.append('parse', 'true');
+        }
+        const editUrl = `${mealieUrl}/g/${groupSlug}/r/${recipeSlug}?${params.toString()}`;
+        await api.tabs.create({ url: editUrl });
+      }
+    } catch (e) {
+      console.error('Send2Mealie: Error creating recipe via web interface', e);
+      api.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icons/icon_128.png", message: "Failed to import recipe" });
     }
-    const createUrl = `${mealieUrl}/g/${groupSlug}/r/create/url?${params.toString()}`;
-    await api.tabs.create({ url: createUrl });
-    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icons/icon_128.png", message: "Opening recipe in Mealie..." });
     return;
   }
 
