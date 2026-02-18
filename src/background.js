@@ -223,12 +223,14 @@ async function checkLoginCookie(mealieUrl) {
 async function createRecipeViaApi(url, mealieUrl, mealieApiToken) {
   try {
     const fetchUrl = new URL('/api/recipes/create/url', mealieUrl).href;
+    const headers = { 'Content-Type': 'application/json' };
+    if (mealieApiToken) {
+      headers['Authorization'] = `Bearer ${mealieApiToken}`;
+    }
     const resp = await fetch(fetchUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${mealieApiToken}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
+      credentials: mealieApiToken ? 'omit' : 'include',
       body: JSON.stringify({ url })
     });
     if (!resp.ok) throw new Error('Failed to send recipe');
@@ -245,8 +247,13 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiToken) {
 
 async function getGroupSlug(mealieUrl, mealieApiToken) {
   try {
+    const headers = {};
+    if (mealieApiToken) {
+      headers['Authorization'] = `Bearer ${mealieApiToken}`;
+    }
     const resp = await fetch(`${mealieUrl}/api/groups/self`, {
-      headers: { Authorization: `Bearer ${mealieApiToken}` }
+      headers,
+      credentials: mealieApiToken ? 'omit' : 'include'
     });
     if (!resp.ok) return null;
     const data = await resp.json();
@@ -284,8 +291,13 @@ async function waitForRecipeSlug(recipe, mealieUrl, mealieApiToken, maxRetries =
   for (let i = 0; i < maxRetries; i++) {
     await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms between retries
     try {
+      const headers = {};
+      if (mealieApiToken) {
+        headers['Authorization'] = `Bearer ${mealieApiToken}`;
+      }
       const resp = await fetch(`${mealieUrl}/api/recipes/${recipe.id}`, {
-        headers: { Authorization: `Bearer ${mealieApiToken}` }
+        headers,
+        credentials: mealieApiToken ? 'omit' : 'include'
       });
       if (resp.ok) {
         const updatedRecipe = await resp.json();
@@ -335,12 +347,13 @@ async function handleContextMenuSend(pageUrl) {
   const cfg = await api.storage.sync.get(["mealieUrl", "mealieApiToken", "mealieGroupSlug", "enableDuplicateCheck", "enableParse"]);
   const { mealieUrl, mealieApiToken, mealieGroupSlug, enableDuplicateCheck } = cfg || {};
   const enableParse = cfg?.enableParse === true;
-  if (!mealieUrl || !mealieApiToken) {
+  if (!mealieUrl) {
     openPopup();
     return;
   }
 
-  if (enableDuplicateCheck) {
+  // Duplicate check requires API token
+  if (enableDuplicateCheck && mealieApiToken) {
     const existing = await checkDuplicate(pageUrl, mealieUrl, mealieApiToken);
     if (existing) {
       const updatedRecipe = await waitForRecipeSlug(existing, mealieUrl, mealieApiToken);
