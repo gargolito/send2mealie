@@ -236,10 +236,10 @@ async function createRecipeViaApi(url, mealieUrl, mealieApiToken) {
     const recipe = await resp.json();
     // Displays a confirmation notification after an explicit user action.
     // Notifications are not used for advertising or background alerts.
-    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Recipe URL submitted." });
+    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icons/icon_128.png", message: "Recipe URL submitted." });
     return recipe;
   } catch (e) {
-    api.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icon-128.png", message: "Failed to send recipe" });
+    api.notifications?.create({ type: "basic", title: "Mealie error", iconUrl: "icons/icon_128.png", message: "Failed to send recipe" });
     throw e;
   }
 }
@@ -354,13 +354,13 @@ async function handleContextMenuSend(pageUrl) {
   // When no API token, use web interface endpoint
   if (!mealieApiToken) {
     const groupSlug = (mealieGroupSlug || '').trim() || 'home';
-    const params = new URLSearchParams({ url: pageUrl });
+    const params = new URLSearchParams({ recipe_import_url: pageUrl });
     if (enableParse) {
       params.append('parse', 'true');
     }
     const createUrl = `${mealieUrl}/g/${groupSlug}/r/create/url?${params.toString()}`;
     await api.tabs.create({ url: createUrl });
-    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icon-128.png", message: "Opening recipe in Mealie..." });
+    api.notifications?.create({ type: "basic", title: "Sent to Mealie", iconUrl: "icons/icon_128.png", message: "Opening recipe in Mealie..." });
     return;
   }
 
