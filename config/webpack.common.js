@@ -16,6 +16,12 @@ const common = {
     path: PATHS.build,
     // the filename template for entry chunks
     filename: '[name].js',
+    // Flatten source paths - strip src/ directory
+    devtoolModuleFilenameTemplate: (info) => {
+      return info.resourcePath
+        .replace(/^.*[\\\/]src[\\\/]/, '')
+        .replace(/\\/g, '/');
+    },
   },
   devtool: 'source-map',
   stats: {

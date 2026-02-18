@@ -102,7 +102,7 @@ async function load() {
     document.getElementById("mealieUrl").value = cfg.mealieUrl || "";
     document.getElementById("mealieApiToken").value = cfg.mealieApiToken || "";
     document.getElementById("mealieGroupSlug").value = cfg.mealieGroupSlug || "home";
-    document.getElementById("enableSendButton").checked = cfg.enableSendButton !== false;
+    document.getElementById("enableSendButton").checked = cfg.enableSendButton === true;
     document.getElementById("enableDuplicateCheck").checked = cfg.enableDuplicateCheck || false;
     document.getElementById("openEditMode").checked = cfg.openEditMode || false;
     document.getElementById("enableParse").checked = cfg.enableParse || false;

@@ -16,9 +16,12 @@ const config = {
   output: {
     path: path.resolve(__dirname, '../build-cowboy/chrome'),
     filename: '[name].js',
-    devtoolModuleFilenameTemplate: (info) => info.resourcePath
-      .replace(/[\\/]src[\\/]cowboy[\\/]/g, '/src/')
-      .replace(/\\/g, '/'),
+    // Flatten source paths - strip src/ and src/cowboy/ directories
+    devtoolModuleFilenameTemplate: (info) => {
+      return info.resourcePath
+        .replace(/^.*[\\\/]src[\\\/](?:cowboy[\\\/])?/, '')
+        .replace(/\\/g, '/');
+    },
   },
   devtool: 'source-map',
   stats: {
