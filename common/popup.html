@@ -9,7 +9,7 @@
   <div class="header">
     <h1>Send to Mealie</h1>
   </div>
-<details open>
+<details>
   <summary>Setup</summary>
   <!-- Configuration Section -->
   <section class="section section-setup" >
@@ -38,13 +38,13 @@
     <h2 class="section-title">Import Behavior</h2>
     <div class="checkbox-group">
       <label class="checkbox-label">
-      <input type="checkbox" id="enableSendButton" checked>
+      <input type="checkbox" id="enableSendButton">
       <span class="checkbox-text">Enable Send2Mealie button on recipe pages.</span>
       </label>
       <p class="hint">Shows the “Send to Mealie” button on recipe pages (requires API token).</p>
 
       <label class="checkbox-label">
-      <input type="checkbox" id="enableDuplicateCheck" checked>
+      <input type="checkbox" id="enableDuplicateCheck">
       <span class="checkbox-text">Check for duplicates before sending</span>
       </label>
       <p class="hint">Warns if the recipe already exists in your Mealie (requires API token).</p>
@@ -69,7 +69,6 @@
       <h2 class="section-title">Recipe Sites</h2>
       <button class="info-btn" id="infoBtn" title="View default supported sites">*</button>
     </div>
-
     <!-- Add Site -->
     <div class="add-site-group">
       <label for="customSiteUrl" class="label">Add Custom Site</label>
