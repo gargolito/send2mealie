@@ -209,7 +209,7 @@ function buildCowboyChrome(version, projectName) {
     runWebpack('config/webpack.cowboy.chrome.js');
 
     const output = createZip(
-        path.join(ROOT_DIR, 'build-cowboy', 'chrome'),
+        path.join(ROOT_DIR, 'build/cowboy', 'chrome'),
         path.join(ROOT_DIR, 'dist', 'cowboy', 'chrome'),
         `${projectName}-cowboy-${version}.zip`,
         projectName
@@ -223,7 +223,7 @@ function buildCowboyFirefox(version, projectName) {
     runWebpack('config/webpack.cowboy.firefox.js');
 
     const output = createZip(
-        path.join(ROOT_DIR, 'build-cowboy', 'firefox'),
+        path.join(ROOT_DIR, 'build/cowboy', 'firefox'),
         path.join(ROOT_DIR, 'dist', 'cowboy', 'firefox'),
         `${projectName}-cowboy-${version}.xpi`,
         projectName

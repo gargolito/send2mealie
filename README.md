@@ -74,8 +74,8 @@ The cowboy version is intended for development installations with:
 ⚠️ **Important:** This version is **not** submitted to extension stores and is for personal/development use only.
 
 ```bash
-npm run build:cowboy:chrome    # Chrome → build-cowboy/chrome/
-npm run build:cowboy:firefox   # Firefox → build-cowboy/firefox/
+npm run build:cowboy:chrome    # Chrome → build/cowboy/chrome/
+npm run build:cowboy:firefox   # Firefox → build/cowboy/firefox/
 npm run build:cowboy:all       # Both
 ```
 

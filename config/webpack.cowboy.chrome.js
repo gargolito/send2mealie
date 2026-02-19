@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 // Cowboy version - allows HTTP and IP addresses
-// Outputs to build-cowboy/chrome/ and uses cowboy/chrome/ for static assets
+// Outputs to build/cowboy/chrome/ and uses cowboy/chrome/ for static assets
 const config = {
   entry: {
     popup: path.resolve(__dirname, '../src/cowboy/popup.js'),
@@ -14,7 +14,7 @@ const config = {
     background: path.resolve(__dirname, '../src/cowboy/background.js'),
   },
   output: {
-    path: path.resolve(__dirname, '../build-cowboy/chrome'),
+    path: path.resolve(__dirname, '../build/cowboy/chrome'),
     filename: '[name].js',
     // Flatten source paths - strip src/ and src/cowboy/ directories
     devtoolModuleFilenameTemplate: (info) => {
